@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.blink-outline {
+    outline: 2px solid black;
+    animation: blink 0.5s step-end infinite alternate;
+}
+
+@keyframes blink {
+    from {
+        outline-color: black;
+    }
+    to {
+        outline-color: transparent;
+    }
+}
+
