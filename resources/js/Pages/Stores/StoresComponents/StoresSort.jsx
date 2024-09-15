@@ -11,13 +11,25 @@ import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: green[500], // Set the primary color to green
+    },
+  },
+});
+
 export default function StoresSort({ itemType, onItemTypeChange }) {
   const handleChange = (event) => {
     onItemTypeChange(event.target.value); // Pass selected type to parent
   };
 
   return (
-    <Box sx={{ minWidth: "100%" }}>
+    <ThemeProvider theme={theme}>
+    <Box sx={{ minWidth: "100%", }}>
       <FormControl fullWidth>
         <InputLabel id="demo-simple-select-label">Type</InputLabel>
         <Select
@@ -35,5 +47,6 @@ export default function StoresSort({ itemType, onItemTypeChange }) {
         </Select>
       </FormControl>
     </Box>
+    </ThemeProvider>
   );
 }

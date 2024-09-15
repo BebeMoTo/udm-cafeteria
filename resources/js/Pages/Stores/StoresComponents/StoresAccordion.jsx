@@ -26,7 +26,7 @@ export default function StoresAccordion({stall_no, store_description, store_stat
             <StoreMallDirectoryTwoToneIcon sx={{marginRight: "4px"}}/> <b>Stall No:</b> {stall_no}<br/>
             <ToggleOnTwoToneIcon sx={{marginRight: "4px"}}/> <b>State:</b> {store_state}<br/>
             <FastfoodTwoToneIcon sx={{marginRight: "4px"}}/> <b>Total Items:</b> {store_items_count}<br/>
-            <AddShoppingCartTwoToneIcon sx={{marginRight: "4px"}}/> <b>Additional Fee:</b> {'\u20B1'}{additional_fee}<br/>
+            <AddShoppingCartTwoToneIcon sx={{marginRight: "4px"}}/> <b>Additional Fee:</b> {'\u20B1'}{additional_fee.toFixed(2)}<br/>
             <DescriptionTwoToneIcon sx={{marginRight: "4px"}}/> <b>Description:</b> {store_description}
           </Typography>
         </AccordionDetails>

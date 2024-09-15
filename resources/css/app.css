@@ -2,17 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-.blink-outline {
-    outline: 2px solid black;
-    animation: blink 0.5s step-end infinite alternate;
+/* Remove blink-outline and replace with optional background style */
+.selected-item {
+    background-color: #f0f0f0; /* Greyish background */
 }
 
-@keyframes blink {
-    from {
-        outline-color: black;
-    }
-    to {
-        outline-color: transparent;
-    }
+/* Hide the up and down arrows for all major browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
+input[type="number"] {
+  -moz-appearance: textfield; /* For Firefox */
+}
