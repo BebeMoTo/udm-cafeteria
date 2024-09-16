@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('type')->default('User');
-            $table->float('balance')->nullable()->default(0);
-            $table->float('expense')->nullable()->default(0);
+            $table->decimal('balance', 10, 2)->default(0);
+            $table->decimal('expense', 10, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

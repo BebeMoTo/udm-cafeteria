@@ -6,6 +6,7 @@ import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import ArrowForwardIosTwoToneIcon from '@mui/icons-material/ArrowForwardIosTwoTone';
 import HorizontalCard from './CartsComponents/HorizontalCard';
 import DeleteConfirmationModal from './CartsComponents/DeleteConfirmationModal';
+import BuyConfirmationModal from './CartsComponents/BuyConfirmationModal';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import { red, blue, grey } from '@mui/material/colors';
@@ -35,6 +36,9 @@ const Index = ({auth, carts: initialCarts }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
+    const [modalOpenBuy, setModalOpenBuy] = useState(false);
+    const [itemToBuy, setItemToBuy] = useState(null);
+
     //SnackBar
     const [open, setOpen] = React.useState(false);
     const [snackbarMessage, setSnackbarMessage] = React.useState("");
@@ -43,10 +47,23 @@ const Index = ({auth, carts: initialCarts }) => {
         setItemToDelete(itemId);
         setModalOpen(true);
       };
+
+      //buy
+    const handleOpenModalBuy = (cart) => {
+        setItemToBuy(cart);
+        setModalOpenBuy(true);
+      };
     
+      
+
       const handleCloseModal = () => {
         setItemToDelete(null);
         setModalOpen(false);
+      };
+
+      const handleCloseModalBuy = () => {
+        setItemToBuy(null);
+        setModalOpenBuy(false);
       };
 
       const handleClose = (event, reason) => {
@@ -96,6 +113,53 @@ const Index = ({auth, carts: initialCarts }) => {
             }
         }
     };
+
+    const handleConfirmBuy = async () => {
+        if (itemToBuy) {
+            try {
+                // Place the order
+                await axios.post('/orders', {
+                    user_id: auth.user.id,
+                    item_id: itemToBuy.item.id,
+                    store_id: itemToBuy.store.id,
+                    quantity: itemToBuy.quantity,
+                    total_price: itemToBuy.total_price
+                });
+    
+                // Remove item from cart
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                await fetch(`/carts/${itemToBuy.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+    
+                // Update local state
+                setCarts(carts.filter(cart => cart.id !== itemToBuy.id));
+    
+                // Close the modal and show success message
+                handleCloseModalBuy();
+                setOpen(true);
+                setSnackbarMessage("Order placed successfully!");
+    
+            } catch (error) {
+                console.error('Error placing order:', error);
+    
+                // Handle specific errors
+                if (error.response && error.response.status === 422) {
+                    const errorMessage = error.response.data.message;
+                    setSnackbarMessage(errorMessage);
+                } else {
+                    setSnackbarMessage('Placing order failed. Please try again.');
+                }
+                setOpen(true);
+                handleCloseModalBuy();
+            }
+        }
+    };
+    
     
 
     const groupedByStore = carts.reduce((acc, cart) => {
@@ -147,7 +211,8 @@ const Index = ({auth, carts: initialCarts }) => {
                                             additional_fee = {cart.store.additional_fee}
                                             >
                                                 <Button variant='contained' sx={{ backgroundColor: red[400] }} size="small" onClick={() => handleOpenModal(cart.id)} >Delete</Button>
-                                                <Button variant='contained' size="small" sx={{ backgroundColor: blue[500] }}>Buy</Button>
+                                                <Button variant='contained' size="small" sx={{ backgroundColor: blue[500] }}
+                                                onClick={() => handleOpenModalBuy(cart)}>Buy</Button>
                                             </HorizontalCard>
 
                                         ))}
@@ -162,6 +227,12 @@ const Index = ({auth, carts: initialCarts }) => {
                     open={modalOpen}
                     onClose={handleCloseModal}
                     onConfirm={handleConfirmDelete}
+                />
+
+                <BuyConfirmationModal
+                    open={modalOpenBuy}
+                    onClose={handleCloseModalBuy}
+                    onConfirm={handleConfirmBuy}
                 />
 
                 <Snackbar

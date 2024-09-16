@@ -6,7 +6,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 import WalletIcon from '@mui/icons-material/Wallet';
 
-export default function Authenticated({ user, header, type, balance, children }) {
+export default function Authenticated({ user, header, type, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
@@ -136,7 +136,7 @@ export default function Authenticated({ user, header, type, balance, children })
 
             {header && (
                 <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{balance.toFixed(2)}</h2></div>
+                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{user.balance}</h2></div>
                     <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
