@@ -1,6 +1,13 @@
+//React
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+//axios
 import axios from 'axios';
+//My components
+import StoreSnackBar from './StoreSnackBar';
+import StoresItemAddModal from './StoresItemAddModal';
+//inertia
+import { usePage } from '@inertiajs/react';
+//materialUI
 import { styled } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import Button from '@mui/material/Button';
@@ -8,17 +15,48 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { CardMedia } from '@mui/material';
-import { usePage } from '@inertiajs/react';
-
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import SoupKitchenIcon from '@mui/icons-material/SoupKitchen';
 import KebabDiningIcon from '@mui/icons-material/KebabDining';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
+//others
+import PropTypes from 'prop-types';
+
+
 
 function StoreItemInfo({ item, open, onClose }) {
   const { auth } = usePage().props; // Assuming user data is passed as 'auth'
   const [itemQuantity, setItemQuantity] = useState(0);
   const [loading, setLoading] = useState(false); // Add loading state
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false); //snackbar kuo
+
+  //buying the item
+  const [modalOpen, setModalOpen] = useState(false);
+  const [itemToAdd, setItemToAdd] = useState(null);
+  const handleConfirmBuy = async () => {
+    setLoading(true);
+    try {
+      await axios.post('/carts', {
+        user_id: auth.user.id,
+        item_id: item.id,
+        store_id: item.store_id,
+        quantity: itemQuantity,
+        total_price: itemQuantity * item.price
+      });
+
+      setSnackbarMessage('Item added to cart successfully!');
+      setOpenSnackbar(true);  // Open snackbar on success
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+      setSnackbarMessage('Failed to add item to cart. Please try again.');
+      setOpenSnackbar(true);  // Open snackbar on failure
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handler for the "+" button
   const handleIncrease = () => {
@@ -49,27 +87,30 @@ function StoreItemInfo({ item, open, onClose }) {
   };
 
   // Handle "Add to Cart" click
-  const handleAddToCart = async () => {
-    setLoading(true);
-    try {
-      await axios.post('/carts', {
-        user_id: auth.user.id, // Pass user ID from authenticated user
-        item_id: item.id,
-        store_id: item.store_id,
-        quantity: itemQuantity,
-        total_price: itemQuantity * item.price
-      });
-
-      alert('Item added to cart successfully!');
-    } catch (error) {
-      console.error('Error adding item to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleAddToCart = async () => {
+      setLoading(true);
+      try {
+        await axios.post('/carts', {
+          user_id: auth.user.id,
+          item_id: item.id,
+          store_id: item.store_id,
+          quantity: itemQuantity,
+          total_price: itemQuantity * item.price
+        });
+  
+        setSnackbarMessage('Item added to cart successfully!');
+        setOpenSnackbar(true);  // Open snackbar on success
+      } catch (error) {
+        console.error('Error adding item to cart:', error);
+        setSnackbarMessage('Failed to add item to cart. Please try again.');
+        setOpenSnackbar(true);  // Open snackbar on failure
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
+    <>
     <SwipeableDrawer
       anchor="bottom"
       open={open}
@@ -101,7 +142,7 @@ function StoreItemInfo({ item, open, onClose }) {
               type="number"
               value={itemQuantity}
               onChange={handleInputChange}
-              style={{ width: "50px", textAlign: "center", borderRadius: "8px" }}
+              style={{ width: "60px", textAlign: "center", borderRadius: "8px" }}
               min="0"
               max={item.quantity}
             />
@@ -117,10 +158,26 @@ function StoreItemInfo({ item, open, onClose }) {
             >
               {loading ? "Adding..." : "Add to Cart"}
             </Button>
+
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: green[800] }}
+              onClick={handleAddToCart}
+              disabled={loading || itemQuantity === 0} // Disable while loading or if no quantity
+            >
+              {loading ? "Adding..." : "Add to Cart"}
+            </Button>
           </Box>
         </Box>
       </Box>
     </SwipeableDrawer>
+    <StoreSnackBar message={snackbarMessage} openSnackbar={openSnackbar} />
+    <StoresItemAddModal
+                    open={modalOpen}
+                    onClose={handleCloseModal}
+                    onConfirm={handleConfirmDelete}
+    />
+    </>
   );
 }
 

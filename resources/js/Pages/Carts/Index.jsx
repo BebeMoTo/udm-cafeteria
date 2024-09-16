@@ -9,12 +9,26 @@ import DeleteConfirmationModal from './CartsComponents/DeleteConfirmationModal';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
 import { red, blue, grey } from '@mui/material/colors';
+import Alert from '@mui/material/Alert';
 
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 const Index = ({auth, carts: initialCarts }) => {
+
+    //if no items
+    function noItems(count) {
+
+        if (count === 0) {
+            return (
+                <Alert variant="outlined" severity="info">
+                    There is no item in your cart. Go add something!
+                    Happy Eating!
+                  </Alert>
+                );
+        }
+    }
 
     //Modal Confirmation
     const [carts, setCarts] = useState(initialCarts);
@@ -110,6 +124,7 @@ const Index = ({auth, carts: initialCarts }) => {
 
                         
                         <div>
+                            {noItems(initialCarts.length)}
                             {Object.entries(groupedByStore).map(([storeName, storeCarts]) => (
                                 <div key={storeName}>
                                     
@@ -119,7 +134,6 @@ const Index = ({auth, carts: initialCarts }) => {
                                     variant='h5' fontWeight={400} fontSize={"24px"} sx={{marginBottom: "8px", fontVariant: "small-caps", fontWeight: "bold"}}
                                     ><StorefrontOutlinedIcon fontSize='big' sx={{paddingBottom: "2px"}}/> {storeName}<ArrowForwardIosTwoToneIcon fontSize='big' sx={{paddingBottom: "2px", color: "grey"}}/></Typography> {/* Store Name */}
                                     </Link>
-
                                         {storeCarts.map((cart) => (
 
 

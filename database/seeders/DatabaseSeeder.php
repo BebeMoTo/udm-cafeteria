@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        
         User::factory()->create([
             'name' => 'Jay-R Buitre',
             'email' => 'jayrbuitre0226@gmail.com',
@@ -48,7 +49,10 @@ class DatabaseSeeder extends Seeder
             'balance' => null,
             'expense' => null
         ]);
+        
 
         Store::factory()->count(10)->hasItems(15)->create();
+
+        //$this->call(CartSeeder::class);
     }
 }

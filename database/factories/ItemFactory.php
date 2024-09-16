@@ -23,6 +23,7 @@ class ItemFactory extends Factory
             'quantity' => fake()->numberBetween(0, 100),
             'type' => fake()->randomElement(['Meal', 'Drink', 'Snack', 'Others']),
             'image_path' => fake()->imageUrl(800, 600, 'animals', true),
+            'state' => fake()->randomElement([0, 1])
         ];
     }
 }
