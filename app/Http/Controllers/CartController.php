@@ -54,15 +54,40 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
             'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|integer|min:1',
-            'total_price' => 'required|numeric',
             'store_id' => 'required|exists:stores,id',
+            'quantity' => 'required|integer|min:1',
+            'total_price' => 'required|numeric|min:0',
         ]);
-
-        Cart::create($validated); // Save the new cart item
-        return redirect()->route('carts.index'); // Redirect to the index page
+    
+        // Check if the item is already in the cart for the user
+        $cartItem = Cart::where('user_id', $validated['user_id'])
+                        ->where('item_id', $validated['item_id'])
+                        ->where('store_id', $validated['store_id'])
+                        ->first();
+    
+        if ($cartItem) {
+            // If item is already in the cart, update the quantity and total_price
+            $cartItem->quantity += $validated['quantity'];
+            $cartItem->total_price = $cartItem->quantity * $validated['total_price'] / $validated['quantity']; // Ensures correct price update based on new quantity
+            $cartItem->save();
+    
+            return response()->json(['message' => 'Cart updated successfully!'], 200);
+        } else {
+            // If item is not in the cart, create a new record
+            Cart::create([
+                'user_id' => $validated['user_id'],
+                'item_id' => $validated['item_id'],
+                'store_id' => $validated['store_id'],
+                'quantity' => $validated['quantity'],
+                'total_price' => $validated['total_price'],
+            ]);
+    
+            return response()->json(['message' => 'Item added to cart successfully!'], 201);
+        }
     }
+    
 
     /**
      * Display the specified resource.
