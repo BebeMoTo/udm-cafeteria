@@ -35,6 +35,11 @@ export default function Authenticated({ user, header, type, children }) {
                                         Cart
                                     </NavLink>
                                 )}
+                                    {type !== 'Seller' && (
+                                    <NavLink href={route('orders.index')} active={route().current('orders.index')}>
+                                        Orders
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -114,6 +119,11 @@ export default function Authenticated({ user, header, type, children }) {
                         {type !== 'Seller' && (
                             <ResponsiveNavLink href={route('carts.index')} active={route().current('carts.index')}>
                                 Cart
+                            </ResponsiveNavLink>
+                        )}
+                        {type !== 'Seller' && (
+                            <ResponsiveNavLink href={route('orders.index')} active={route().current('orders.index')}>
+                                Orders
                             </ResponsiveNavLink>
                         )}
                     </div>

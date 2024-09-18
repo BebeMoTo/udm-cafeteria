@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -14,7 +15,25 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+    // Get the current authenticated user's ID
+    $userId = auth()->id();
+
+    // Fetch cart items for the authenticated user
+    $orders = Order::with([
+            'item' => function($query) {
+                $query->select('id', 'name', 'price', 'quantity', 'state', 'image_path'); // Specify the columns you want to include
+            },
+            'store' => function($query) {
+                $query->select('id', 'name', 'state', 'additional_fee'); // Specify columns for the store if needed
+            }
+        ])
+                 ->where('user_id', $userId)
+                 ->get();
+
+    // Pass the data to the Inertia view
+    return Inertia::render('Orders/Index', [
+        'orders' => $orders
+    ]);
     }
 
     /**
