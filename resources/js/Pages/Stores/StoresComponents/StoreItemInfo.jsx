@@ -92,6 +92,10 @@ function StoreItemInfo({ item, open, onClose }) {
       setSnackbarMessage('Order placed successfully!');
       setSnackbarKey(uuidv4()); // Generate a new key
       setOpenSnackbar(true);
+
+      const timer = setTimeout(() => {
+        window.location.reload();  // Refresh the page
+      }, 2000);  // 3000 milliseconds = 3 seconds
     } catch (error) {
       console.error('Error placing order:', error);
 

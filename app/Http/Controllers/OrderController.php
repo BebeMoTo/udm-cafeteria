@@ -89,6 +89,7 @@ class OrderController extends Controller
             'quantity' => $validated['quantity'],
             'total_price' => $validated['total_price'],
             'status' => 'Pending', // Set the status to pending as seller confirmation is required
+            'pending_time' => now(),
         ]);
     
         return response()->json([

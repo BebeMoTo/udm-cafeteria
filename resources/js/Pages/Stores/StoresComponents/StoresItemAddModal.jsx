@@ -31,7 +31,7 @@ export default function StoresItemAddModal({ open, onClose, onConfirm }) {
     >
       <Box sx={style
           }>
-        <h2 id="buy-confirmation-title" style={{fontSize: "20px", marginBottom: "5px"}}><b>Confirmn to buy</b></h2>
+        <h2 id="buy-confirmation-title" style={{fontSize: "20px", marginBottom: "5px"}}><b>Confirm to buy</b></h2>
         <p id="delete-confirmation-description">
           Are you sure you want to buy this item?
         </p><br/>

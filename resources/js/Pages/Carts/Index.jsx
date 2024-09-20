@@ -143,12 +143,17 @@ const Index = ({auth, carts: initialCarts }) => {
                 handleCloseModalBuy();
                 setOpen(true);
                 setSnackbarMessage("Order placed successfully!");
+
+                //refresh page
+                const timer = setTimeout(() => {
+                    window.location.reload();  // Refresh the page
+                  }, 2000);  // 3000 milliseconds = 3 seconds
     
             } catch (error) {
                 console.error('Error placing order:', error);
     
                 // Handle specific errors
-                if (error.response && error.response.status === 422) {
+                if (error.response && error.response.status === 400) {
                     const errorMessage = error.response.data.message;
                     setSnackbarMessage(errorMessage);
                 } else {

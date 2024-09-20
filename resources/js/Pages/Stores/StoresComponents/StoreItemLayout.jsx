@@ -13,7 +13,6 @@ import KebabDiningIcon from '@mui/icons-material/KebabDining';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
 import { green, grey } from '@mui/material/colors';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 export default function StoreItemLayout({ name, price, image, state, type, className }) {
     const getItemTypeLabel = (type) => {
