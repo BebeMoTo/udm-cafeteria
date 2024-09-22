@@ -189,7 +189,7 @@ const Index = ({auth, carts: initialCarts }) => {
 
             <div className="py-5">
                 <div className="mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg px-6 py-2">
+                    
 
                         
                         <div>
@@ -226,7 +226,7 @@ const Index = ({auth, carts: initialCarts }) => {
                             ))}
                         </div>
 
-                    </div>
+                    
                 </div>
                 <DeleteConfirmationModal
                     open={modalOpen}

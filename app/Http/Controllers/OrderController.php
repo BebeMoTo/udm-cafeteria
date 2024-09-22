@@ -61,11 +61,11 @@ class OrderController extends Controller
         // Retrieve user details
         $user = User::findOrFail($validated['user_id']);
         
-        Log::info('User details:', $user->toArray()); // Convert the user object to an array for better readability
+        //Log::info('User details:', $user->toArray()); // Convert the user object to an array for better readability
 
         // Log the user's balance
-        Log::info('User Balance: ' . $user->balance);
-        Log::info('Order Total Price: ' . $validated['total_price']);
+        //Log::info('User Balance: ' . $user->balance);
+        //Log::info('Order Total Price: ' . $validated['total_price']);
         
         
         // Check if user balance is sufficient
@@ -129,5 +129,50 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         //
+    }
+
+
+
+
+    /**
+     * Cancel a pending order and update user's balance and expenses.
+     */
+    public function cancel($id)
+    {
+        try{
+        // Find the order by ID
+        $order = Order::findOrFail($id);
+
+        // Check if the order is still pending
+        if ($order->status !== 'Pending') {
+            return response()->json(['message' => 'Only pending orders can be cancelled.'], 400);
+        }
+        
+
+        $user = $order->user; // Assuming you have a belongsTo relationship set up between Order and User
+
+        // Log the cancellation event
+        Log::info('Cancelling Order ID: ' . $order->id . ' for User ID: ' . $user->id);
+
+        // Add the total price back to the user's balance
+        $user->balance += $order->total_price;
+
+        // Reduce the amount from the user's expense
+        $user->expense -= $order->total_price;
+
+        // Update the user record
+        $user->save();
+
+        // Change the order status to cancelled
+        $order->status = 'Cancelled';
+        $order->cancelled_time = now(); // Add the current time to the cancelled_time field
+        $order->save();
+
+        // Return success response
+        return response()->json(['message' => 'Order has been cancelled successfully.']); }
+        catch (\Exception $e) {
+            Log::error('Error canceling order: '.$e->getMessage());
+            return response()->json(['error' => 'Unable to cancel order.'], 500);
+        }
     }
 }

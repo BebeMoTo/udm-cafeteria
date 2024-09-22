@@ -29,6 +29,8 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('carts', CartController::class);
     Route::resource('stores', StoreController::class);
     Route::resource('orders', OrderController::class);
+
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 });
 
 require __DIR__.'/auth.php';
