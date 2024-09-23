@@ -4,7 +4,7 @@ import Authenticated from "@/Layouts/AuthenticatedLayout";
 import OrderSelectSort from './OrdersComponents/OrderSelectSort';
 import CardPending from './OrdersComponents/CardPending';
 // MaterialUI
-import { Button, Typography, Snackbar } from "@mui/material";
+import { Button, Typography, Snackbar, Alert } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -18,29 +18,30 @@ const Index = ({ auth, orders: initialOrders }) => {
     // Use state to manage orders
     const [orders, setOrders] = useState(initialOrders);
     const [selectedStatus, setSelectedStatus] = useState('Pending');
+    const [loadingOrderId, setLoadingOrderId] = useState(null); // Track loading state for cancellation
 
-    //State for Snackbar
+    // State for Snackbar
     const [openSnack, setOpenSnack] = React.useState(false);
     const [snackbarMessage, setSnackbarMessage] = React.useState("");
-    //Closing the Snackbar
+    // Closing the Snackbar
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
-          return;
+            return;
         }
         setOpenSnack(false);
     };
-    //Action snackBar
+    // Action snackBar
     const action = (
-      <React.Fragment>
-        <IconButton
-          size="small"
-          aria-label="close"
-          color="inherit"
-          onClick={handleClose}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </React.Fragment>
+        <React.Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
     );
 
     // Filter orders based on their status
@@ -53,6 +54,7 @@ const Index = ({ auth, orders: initialOrders }) => {
 
     // Function to handle the cancellation of an order
     const cancelOrder = (orderId) => {
+        setLoadingOrderId(orderId); // Set loading state
         axios.post(`/orders/${orderId}/cancel`, {}, {
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -68,11 +70,17 @@ const Index = ({ auth, orders: initialOrders }) => {
             );
             setOpenSnack(true);
             setSnackbarMessage("Order cancelled successfully");
+            const timer = setTimeout(() => {
+              window.location.reload();  // Refresh the page
+            }, 2000); 
         })
         .catch(error => {
             console.error('Error cancelling order:', error);
             setOpenSnack(true);
             setSnackbarMessage("Cancelling order failed.");
+        })
+        .finally(() => {
+            setLoadingOrderId(null); // Reset loading state
         });
     };
 
@@ -87,39 +95,87 @@ const Index = ({ auth, orders: initialOrders }) => {
             <OrderSelectSort selectedStatus={selectedStatus} onStatusChange={handleStatusChange} />
 
             <div>
-                {selectedStatus === "Pending" && pendingOrders.map(order => (
-                    <div key={order.id} style={{marginBottom: "2px"}}>
+                {selectedStatus === "Pending" ? 
+                (  pendingOrders.length !== 0 ? (
+                    pendingOrders.map(order => (
+                      <div key={order.id} style={{ marginBottom: "2px" }}>
                         <CardPending order={order}>
-                            <Button
-                                variant='contained'
-                                color='error'
-                                onClick={() => cancelOrder(order.id)}  // Call cancelOrder function on click
-                            >
-                                Cancel Order
-                            </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => cancelOrder(order.id)} 
+                            disabled={loadingOrderId === order.id} // Disable button if loading
+                          >
+                            Cancel Order
+                          </Button>
                         </CardPending>
-                    </div>
-                ))}
+                      </div>
+                    ))) : 
+                    (
+                        <Alert
+                          variant="outlined"
+                          severity="info"
+                          sx={{ width: "90%", margin: "auto", marginTop: "16px"  }}
+                        >
+                          You don't have any pending orders. Go buy something! Happy Eating!
+                        </Alert>
+                      )
+                    ) : null}
 
-                {selectedStatus === "Accepted" && acceptedOrders.map(order => (
+                {selectedStatus === "Accepted" ? 
+                (  acceptedOrders.length !== 0 ? (
+                    acceptedOrders.map(order => (
                     <div key={order.id} style={{marginBottom: "2px"}}>
                         <CardPending order={order}></CardPending>
                     </div>
-                ))}
+                    ))) : 
+                    (
+                        <Alert
+                          variant="outlined"
+                          severity="info"
+                          sx={{ width: "90%", margin: "auto", marginTop: "16px"   }}
+                        >
+                          Nothing to show here.
+                        </Alert>
+                      )
+                    ) : null}
 
-                {selectedStatus === "Claimed" && claimedOrders.map(order => (
+                {selectedStatus === "Claimed" ? 
+                (  claimedOrders.length !== 0 ? (
+                    claimedOrders.map(order => (
                     <div key={order.id} style={{marginBottom: "2px"}}>
                         <CardPending order={order}></CardPending>
                     </div>
-                ))}
+                    ))) : 
+                    (
+                        <Alert
+                          variant="outlined"
+                          severity="info"
+                          sx={{ width: "90%", margin: "auto", marginTop: "16px"   }}
+                        >
+                          Nothing to show here.
+                        </Alert>
+                      )
+                    ) : null}
 
-                {selectedStatus === "Cancelled" && cancelledOrders.map(order => (
-                    <div key={order.id} style={{marginBottom: "2px"}}>
+                {selectedStatus === "Cancelled" ? 
+                (  cancelledOrders.length !== 0 ? (
+                    cancelledOrders.map(order => (
+                        <div key={order.id} style={{marginBottom: "2px"}}>
                         <CardPending order={order}></CardPending>
                     </div>
-                ))}
+                    ))) : 
+                    (
+                        <Alert
+                          variant="outlined"
+                          severity="info"
+                          sx={{ width: "90%", margin: "auto", marginTop: "16px" }}
+                        >
+                          Nothing to show here.
+                        </Alert>
+                      )
+                    ) : null}
             </div>
-
 
             <Snackbar
                 open={openSnack}

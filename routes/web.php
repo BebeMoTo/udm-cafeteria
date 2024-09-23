@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Foundation\Application;
@@ -31,6 +32,8 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('orders', OrderController::class);
 
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+
+    Route::resource('users', UserController::class);
 });
 
 require __DIR__.'/auth.php';

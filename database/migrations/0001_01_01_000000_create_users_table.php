@@ -19,10 +19,12 @@ return new class extends Migration
             $table->string('password');
             $table->string('type')->default('User');
             $table->decimal('balance', 10, 2)->default(0);
-            $table->decimal('expense', 10, 2)->default(0);
+            $table->decimal('expense', 10, 2)->default(0);        
             $table->rememberToken();
             $table->timestamps();
         });
+        DB::statement('ALTER TABLE users MODIFY balance DECIMAL(10, 2) UNSIGNED NULL DEFAULT 0');
+        DB::statement('ALTER TABLE users MODIFY expense DECIMAL(10, 2) UNSIGNED NULL DEFAULT 0');
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

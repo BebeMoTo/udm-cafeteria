@@ -23,10 +23,10 @@ const Index = ({auth, carts: initialCarts }) => {
 
         if (count === 0) {
             return (
-                <Alert variant="outlined" severity="info">
+                <Alert variant="outlined" severity="info" sx={{width: "90%", margin: "auto"}}>
                     There is no item in your cart. Go add something!
                     Happy Eating!
-                  </Alert>
+                </Alert>
                 );
         }
     }

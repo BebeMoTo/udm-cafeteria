@@ -5,13 +5,14 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 import WalletIcon from '@mui/icons-material/Wallet';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 export default function Authenticated({ user, header, type, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <nav className="bg-green border-b border-gray-100">
+            <nav className="bg-green border-b border-gray-100" style={{position: "fixed",backgroundColor: "#f3f4f6", width: "100%", zIndex: "500"}}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
@@ -35,11 +36,24 @@ export default function Authenticated({ user, header, type, children }) {
                                         Cart
                                     </NavLink>
                                 )}
-                                    {type !== 'Seller' && (
+                                {type !== 'Seller' && (
                                     <NavLink href={route('orders.index')} active={route().current('orders.index')}>
                                         Orders
                                     </NavLink>
                                 )}
+                                {type === 'Admin' && (
+                                    <NavLink href={route('users.index')} active={route().current('users.index')}>
+                                        <AdminPanelSettingsIcon/>
+                                        Accounts
+                                    </NavLink>
+                                )}
+                                {type === 'Admin' && (
+                                    <NavLink href={route('users.create')} active={route().current('users.create')}>
+                                        <AdminPanelSettingsIcon/>
+                                        Create
+                                    </NavLink>
+                                )}
+                                
                             </div>
                         </div>
 
@@ -106,7 +120,8 @@ export default function Authenticated({ user, header, type, children }) {
                     </div>
                 </div>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
+                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}
+                style={{width: "100%", backgroundColor: "#f3f4f6"}}>
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
@@ -124,6 +139,18 @@ export default function Authenticated({ user, header, type, children }) {
                         {type !== 'Seller' && (
                             <ResponsiveNavLink href={route('orders.index')} active={route().current('orders.index')}>
                                 Orders
+                            </ResponsiveNavLink>
+                        )}
+                        {type === 'Admin' && (
+                            <ResponsiveNavLink href={route('users.index')} active={route().current('users.index')}>
+                                <AdminPanelSettingsIcon/>
+                                Accounts
+                            </ResponsiveNavLink>
+                        )}
+                        {type === 'Admin' && (
+                            <ResponsiveNavLink href={route('users.create')} active={route().current('users.create')}>
+                                <AdminPanelSettingsIcon/>
+                                Create
                             </ResponsiveNavLink>
                         )}
                     </div>
@@ -145,8 +172,8 @@ export default function Authenticated({ user, header, type, children }) {
             </nav>
 
             {header && (
-                <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{user.balance}</h2></div>
+                <header className="bg-white shadow" style={{paddingTop: "64px"}}>
+                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{user.balance} <span style={{fontSize: ".7rem", color: "gray"}}>({user.expense})</span></h2></div>
                     <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
