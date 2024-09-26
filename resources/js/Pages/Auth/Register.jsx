@@ -11,6 +11,8 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        department: '', // Add this line
+        sex: '', // Add this line
     });
 
     const submit = (e) => {
@@ -58,6 +60,50 @@ export default function Register() {
                     />
 
                     <InputError message={errors.email} className="mt-2" />
+                </div>
+
+                {/* Add Department Select Field */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="department" value="Department" />
+
+                    <select
+                    style={{border: "1px solid lightgrey", borderRadius: "5px"}}
+                        id="department"
+                        name="department"
+                        value={data.department}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('department', e.target.value)}
+                        required
+                    >
+                        <option value="">Select Department</option>
+                        <option value="CET">CET</option>
+                        <option value="CBA">CBA</option>
+                        <option value="CE">CE</option>
+                        <option value="CAS">CAS</option>
+                    </select>
+
+                    <InputError message={errors.department} className="mt-2" />
+                </div>
+
+                {/* Add Sex Select Field */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="sex" value="Sex" />
+
+                    <select
+                    style={{border: "1px solid lightgrey", borderRadius: "5px"}}
+                        id="sex"
+                        name="sex"
+                        value={data.sex}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('sex', e.target.value)}
+                        required
+                    >
+                        <option value="" style={{color: "grey"}}>Select Sex</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+
+                    <InputError message={errors.sex} className="mt-2" />
                 </div>
 
                 <div className="mt-4">

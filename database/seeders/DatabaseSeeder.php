@@ -23,7 +23,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('lovelyjane0226'),
             'type' => "Admin",
             'balance' => 75,
-            'expense' => 20.50
+            'expense' => 20.50,
+            'department' => 'CET', // Add this line
+            'sex' => 'Male', // Add this line
         ]);
         User::factory()->create([
             'name' => 'Oat Buitre',
@@ -31,7 +33,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('lovelyjane0226'),
             'type' => "User",
             'balance' => 50,
-            'expense' => 0
+            'expense' => 0,
+            'department' => 'CET', // Add this line
+            'sex' => 'Male', // Add this line
         ]);
         User::factory()->create([
             'name' => 'Josephine Culdora',
@@ -39,7 +43,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('lovelyjane0226'),
             'type' => "User",
             'balance' => 80.25,
-            'expense' => 20.50
+            'expense' => 20.50,
+            'department' => 'CET', // Add this line
+            'sex' => 'Female', // Add this line
         ]);
         User::factory()->create([
             'name' => 'John Rey',
@@ -47,7 +53,95 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('lovelyjane0226'),
             'type' => "Seller",
             'balance' => null,
-            'expense' => null
+            'expense' => null,
+            'department' => null, // Add this line
+            'sex' => 'Male', // Add this line
+            'store_id' => 1,
+        ]);
+
+
+
+        User::factory()->create([
+            'name' => 'MamaMia',
+            'email' => 'mamamiat4re0226@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "User",
+            'balance' => 75,
+            'expense' => 20.50,
+            'department' => 'CAS', // Add this line
+            'sex' => 'Male', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Sheeshable Buitre',
+            'email' => 'sheeshe0226@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "User",
+            'balance' => 50,
+            'expense' => 0,
+            'department' => 'CAS', // Add this line
+            'sex' => 'Male', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Tomkros',
+            'email' => 'tomkros@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "User",
+            'balance' => 80.25,
+            'expense' => 20.50,
+            'department' => 'CE', // Add this line
+            'sex' => 'Female', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Washinmi',
+            'email' => 'fsrkogjeybuitre0226@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "Seller",
+            'balance' => null,
+            'expense' => null,
+            'department' => null, // Add this line
+            'sex' => 'Male', // Add this line
+            'store_id' => 2,
+        ]);
+        User::factory()->create([
+            'name' => 'So High',
+            'email' => 'ineedyoumostofall@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "Admin",
+            'balance' => 75,
+            'expense' => 20.50,
+            'department' => 'CET', // Add this line
+            'sex' => 'Male', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Vis djskf',
+            'email' => 'wanda@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "User",
+            'balance' => 50,
+            'expense' => 0,
+            'department' => 'CE', // Add this line
+            'sex' => 'Male', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Stephen San',
+            'email' => 'shancheese@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "User",
+            'balance' => 80.25,
+            'expense' => 20.50,
+            'department' => 'CE', // Add this line
+            'sex' => 'Male', // Add this line
+        ]);
+        User::factory()->create([
+            'name' => 'Jopay',
+            'email' => 'jopay@gmail.com',
+            'password' => bcrypt('lovelyjane0226'),
+            'type' => "Seller",
+            'balance' => null,
+            'expense' => null,
+            'department' => null, // Add this line
+            'sex' => 'Female', // Add this line
+            'store_id' => 3,
         ]);
         
 

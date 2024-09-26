@@ -19,7 +19,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('type')->default('User');
             $table->decimal('balance', 10, 2)->default(0);
-            $table->decimal('expense', 10, 2)->default(0);        
+            $table->decimal('expense', 10, 2)->default(0); 
+
+            $table->string('department')->nullable();
+            $table->string('sex')->nullable();
+            $table->foreignId('store_id')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -50,5 +54,10 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('department');
+            $table->dropColumn('sex');
+        });
     }
 };

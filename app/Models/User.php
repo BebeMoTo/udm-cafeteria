@@ -21,7 +21,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'balance',
-        'expenses'
+        'expenses',
+        'department', // Add this line
+        'sex', // Add this line
     ];
     protected $guarded = [
         'type',
@@ -65,5 +67,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 }

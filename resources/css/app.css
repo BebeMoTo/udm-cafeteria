@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Remove blink-outline and replace with optional background style */
-.selected-item {
-    background-color: #f0f0f0; /* Greyish background */
-}
-
 /* Hide the up and down arrows for all major browsers */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
