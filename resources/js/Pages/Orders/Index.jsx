@@ -94,11 +94,11 @@ const Index = ({ auth, orders: initialOrders }) => {
             <Head title="Orders"/>
             <OrderSelectSort selectedStatus={selectedStatus} onStatusChange={handleStatusChange} />
 
-            <div>
+            <div style={{padding: ""}}>
                 {selectedStatus === "Pending" ? 
                 (  pendingOrders.length !== 0 ? (
                     pendingOrders.map(order => (
-                      <div key={order.id} style={{ marginBottom: "2px" }}>
+                      <div key={order.id} style={{ marginBottom: "2px", position: "relative" }}>
                         <CardPending order={order}>
                           <Button
                             variant="contained"
@@ -126,7 +126,9 @@ const Index = ({ auth, orders: initialOrders }) => {
                 (  acceptedOrders.length !== 0 ? (
                     acceptedOrders.map(order => (
                     <div key={order.id} style={{marginBottom: "2px"}}>
-                        <CardPending order={order}></CardPending>
+                        <CardPending order={order}>
+                          <p style={{fontSize: "12px"}}>Time Accepted: {order.accepted_time}</p>
+                        </CardPending>
                     </div>
                     ))) : 
                     (
@@ -144,7 +146,9 @@ const Index = ({ auth, orders: initialOrders }) => {
                 (  claimedOrders.length !== 0 ? (
                     claimedOrders.map(order => (
                     <div key={order.id} style={{marginBottom: "2px"}}>
-                        <CardPending order={order}></CardPending>
+                        <CardPending order={order}>
+                          <p style={{fontSize: "12px"}}>Time Claimed: {order.claimed_time}</p>
+                        </CardPending>
                     </div>
                     ))) : 
                     (
@@ -162,7 +166,9 @@ const Index = ({ auth, orders: initialOrders }) => {
                 (  cancelledOrders.length !== 0 ? (
                     cancelledOrders.map(order => (
                         <div key={order.id} style={{marginBottom: "2px"}}>
-                        <CardPending order={order}></CardPending>
+                        <CardPending order={order}>
+                        <p style={{fontSize: "12px"}}>Time Cancelled: {order.cancelled_time}</p>
+                        </CardPending>
                     </div>
                     ))) : 
                     (

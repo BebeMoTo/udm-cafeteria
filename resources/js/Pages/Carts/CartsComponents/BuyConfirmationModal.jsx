@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import { blueGrey } from '@mui/material/colors';
-import { red } from '@mui/material/colors';
+import { blue } from '@mui/material/colors';
 
 const style = {
   position: 'absolute',
@@ -35,7 +35,7 @@ export default function BuyConfirmationModal({ open, onClose, onConfirm }) {
         <p id="delete-confirmation-description">
           Are you sure you want to buy this item from the cart?
         </p><br/>
-        <Button variant='contained' onClick={onConfirm} color="error" sx={{ marginRight: '5px', backgroundColor: red[400] }}>Confirm</Button>
+        <Button variant='contained' onClick={onConfirm} color="error" sx={{ marginRight: '5px', backgroundColor: blue[800] }}>Confirm</Button>
         <Button variant='contained' onClick={onClose}  sx={{ backgroundColor: blueGrey[500] }}>Cancel</Button>
       </Box>
     </Modal>

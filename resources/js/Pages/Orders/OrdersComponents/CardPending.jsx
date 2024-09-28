@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 
 export default function CardPending({order, children}) {
   return (
-    <Card sx={{ display: 'flex', width: '100%', height: '170px' }}>
+    <Card sx={{ display: 'flex', width: '95%', height: '170px', margin: "auto", marginTop: "8px" }}>
       {/* Left side with image */}
       <CardMedia
         component="img"
@@ -26,6 +26,9 @@ export default function CardPending({order, children}) {
           <Typography variant="h6"
           noWrap >
             {order.item.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+            Date ordered: {order.pending_time}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Quantity: {order.quantity}
