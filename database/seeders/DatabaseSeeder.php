@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             'type' => "Admin",
             'balance' => 75,
             'expense' => 20.50,
-            'department' => 'CET', // Add this line
             'sex' => 'Male', // Add this line
         ]);
         User::factory()->create([
@@ -54,7 +53,6 @@ class DatabaseSeeder extends Seeder
             'type' => "Seller",
             'balance' => null,
             'expense' => null,
-            'department' => null, // Add this line
             'sex' => 'Male', // Add this line
             'store_id' => 1,
         ]);
@@ -98,7 +96,6 @@ class DatabaseSeeder extends Seeder
             'type' => "Seller",
             'balance' => null,
             'expense' => null,
-            'department' => null, // Add this line
             'sex' => 'Male', // Add this line
             'store_id' => 2,
         ]);
@@ -109,7 +106,6 @@ class DatabaseSeeder extends Seeder
             'type' => "Admin",
             'balance' => 75,
             'expense' => 20.50,
-            'department' => 'CET', // Add this line
             'sex' => 'Male', // Add this line
         ]);
         User::factory()->create([
@@ -129,7 +125,7 @@ class DatabaseSeeder extends Seeder
             'type' => "User",
             'balance' => 80.25,
             'expense' => 20.50,
-            'department' => 'CE', // Add this line
+            'department' => 'CAS', // Add this line
             'sex' => 'Male', // Add this line
         ]);
         User::factory()->create([
@@ -139,7 +135,6 @@ class DatabaseSeeder extends Seeder
             'type' => "Seller",
             'balance' => null,
             'expense' => null,
-            'department' => null, // Add this line
             'sex' => 'Female', // Add this line
             'store_id' => 3,
         ]);

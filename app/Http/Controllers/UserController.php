@@ -29,7 +29,12 @@ class UserController extends Controller
         }
     
         // Apply sorting
-        $query->orderBy($sort, 'asc');
+        if ($sort === "created_at") {
+            $query->orderBy($sort, 'desc');
+        }
+        else {
+            $query->orderBy($sort, 'asc');
+        }
     
         // Fetch users with pagination
         $users = $query->paginate($perPage);
@@ -75,15 +80,30 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Find the user by ID
+        $user = User::findOrFail($id);
+
+        // Normally, you'd return a view here
+        // return view('users.edit', compact('user'));
+
+        // In your case with Inertia/React, you will return the data
+        return response()->json($user);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'department' => 'required|string',
+        ]);
+    
+        $user->update($request->all());
+    
+        return response()->json($user);
     }
 
     /**
@@ -91,6 +111,19 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            // Find the user by ID
+            $user = User::findOrFail($id);
+    
+            // Delete the user
+            $user->delete();
+    
+            // Return success response
+            return response()->json(['message' => 'User deleted successfully'], 200);
+        } catch (\Exception $e) {
+            // Return error response if something goes wrong
+            return response()->json(['message' => 'Error deleting user', 'error' => $e->getMessage()], 500);
+        }
+    
     }
 }

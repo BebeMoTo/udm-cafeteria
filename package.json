@@ -26,6 +26,7 @@
         "@mui/icons-material": "^6.0.2",
         "@mui/material": "^6.0.2",
         "@mui/styled-engine-sc": "^6.0.2",
+        "dayjs": "^1.11.13",
         "styled-components": "^6.1.13",
         "uuid": "^10.0.0"
     }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('balance', 10, 2)->default(0);
             $table->decimal('expense', 10, 2)->default(0); 
 
-            $table->string('department')->nullable();
+            $table->string('department')->default("None");
             $table->string('sex')->nullable();
             $table->foreignId('store_id')->default(0);
             $table->rememberToken();
