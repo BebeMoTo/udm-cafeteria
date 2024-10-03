@@ -303,7 +303,7 @@ const Index = ({ auth, users: initialUsers }) => {
 
             {filteredUsers.map((user) => (
               <div key={user.id}>
-                <AdminUserCard user={user}>
+                <AdminUserCard user={user} sellerStore={user.store}>
                   <div style={{display: "flex", justifyContent: "flex-end"}}>
                   <Button variant='contained' color='primary' onClick={() => handleEditClick(user)}>
                     {screenWidth <= 800 ? <EditIcon /> : "Edit Info"}

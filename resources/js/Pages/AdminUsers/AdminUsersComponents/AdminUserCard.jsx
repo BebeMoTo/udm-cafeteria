@@ -23,7 +23,6 @@ function userIcon(type) {
 }
 
 const AdminUserCard = ({user, sellerStore, children}) => {
-    
     return (
       <>
           <Accordion sx={{marginBottom: "8px"}}>
@@ -46,7 +45,7 @@ const AdminUserCard = ({user, sellerStore, children}) => {
                   {user.type !== "Seller" ? <p style={{marginBottom: "8px"}}><b>Department: </b><br/>{user.department}</p> : ""}
 
                   {/*FIIIIIIIX THIIIIIIIIIS*/}
-                  {user.type === "Seller" ? <p style={{marginBottom: "8px"}}><b>Stall Name: </b><br/>{user.store.name}</p> : ""}
+                  {user.type === "Seller" ? <p style={{marginBottom: "8px"}}><b>Stall Name: </b><br/>{sellerStore.name}</p> : ""}
                   <br />
                   <div>
                       {children}
