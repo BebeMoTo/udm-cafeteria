@@ -10,6 +10,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import StoreIcon from '@mui/icons-material/Store';
 
 import dayjs from 'dayjs';
+import { useState } from 'react';
 
 function userIcon(type) {
     if (type === "Admin") {
@@ -23,6 +24,7 @@ function userIcon(type) {
 }
 
 const AdminUserCard = ({user, sellerStore, children}) => {
+    const [store, setStore] = useState(sellerStore);
     return (
       <>
           <Accordion sx={{marginBottom: "8px"}}>
@@ -45,7 +47,9 @@ const AdminUserCard = ({user, sellerStore, children}) => {
                   {user.type !== "Seller" ? <p style={{marginBottom: "8px"}}><b>Department: </b><br/>{user.department}</p> : ""}
 
                   {/*FIIIIIIIX THIIIIIIIIIS*/}
-                  {user.type === "Seller" ? <p style={{marginBottom: "8px"}}><b>Stall Name: </b><br/>{sellerStore.name}</p> : ""}
+                  {user.type === "Seller" ? <p style={{marginBottom: "8px"}}><b>Stall Name: </b><br/>{store.name || "Loading Store"}</p> : ""}
+
+                  
                   <br />
                   <div>
                       {children}

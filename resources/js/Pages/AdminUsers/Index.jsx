@@ -75,7 +75,7 @@ const Index = ({ auth, users: initialUsers }) => {
 
         // Close the edit modal and show success message
         setSnackbarMessage('User updated successfully!');
-        setSnackbarSeverity('success');
+        setSnackbarSeverity('success'); 
       } else {
         setSnackbarMessage('Failed to update user. Please try again.');
         setSnackbarSeverity('error');

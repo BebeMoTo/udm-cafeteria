@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import CreateSelect from './AdminUsersComponents/CreateSelect';
+import CreateSellerForm from './AdminUsersComponents/CreateSellerForm';
+import { usePage } from '@inertiajs/react';
 
-const Index = ({auth, users}) => {
-console.log(users);
+const Index = ({auth, stores}) => {
+  
+  console.log(stores);
   return (
     <AuthenticatedLayout
     user={auth.user}
@@ -15,7 +19,9 @@ console.log(users);
 
     <div className="py-5">
         <div className="mx-auto px-3 sm:px-6 lg:px-8">
-            Dito gagawa ng accounts stores sellers etc. Form chuchu
+            <CreateSelect />  
+
+            <CreateSellerForm/>
         </div>
     </div>
     </AuthenticatedLayout>

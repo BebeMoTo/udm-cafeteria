@@ -7,8 +7,9 @@ import { Link } from '@inertiajs/react';
 import WalletIcon from '@mui/icons-material/Wallet';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
-export default function Authenticated({ user, header, type, children }) {
+export default function Authenticated({ user, header, type, balance, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [userBalance, setBalance] = useState(balance);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -173,7 +174,7 @@ export default function Authenticated({ user, header, type, children }) {
 
             {header && (
                 <header className="bg-white shadow" style={{paddingTop: "64px"}}>
-                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{user.balance} <span style={{fontSize: ".7rem", color: "gray"}}>({user.expense})</span></h2></div>
+                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{userBalance} <span style={{fontSize: ".7rem", color: "gray"}}>({user.expense})</span></h2></div>
                     <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
