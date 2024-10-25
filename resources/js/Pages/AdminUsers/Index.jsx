@@ -29,7 +29,7 @@ const theme = createTheme({
 });
 
 const Index = ({ auth, users: initialUsers }) => {
-  console.log(initialUsers);
+  //console.log(initialUsers);
   const [users, setUsers] = useState(initialUsers.data); // Store user data
   const [currentPage, setCurrentPage] = useState(initialUsers.current_page); // Track the current page
   const [lastPage, setLastPage] = useState(initialUsers.last_page); // Track the last page

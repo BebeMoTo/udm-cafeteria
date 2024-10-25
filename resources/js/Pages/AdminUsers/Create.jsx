@@ -3,11 +3,12 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import CreateSelect from './AdminUsersComponents/CreateSelect';
 import CreateSellerForm from './AdminUsersComponents/CreateSellerForm';
-import { usePage } from '@inertiajs/react';
+import CreateAdminForm from './AdminUsersComponents/CreateAdminForm';
+import CreateStoreForm from './AdminUsersComponents/CreateStoreForm';
 
-const Index = ({auth, stores}) => {
-  
-  console.log(stores);
+const Create = ({auth, stores}) => {
+  const [create, setCreate] = React.useState('Seller');
+
   return (
     <AuthenticatedLayout
     user={auth.user}
@@ -19,13 +20,15 @@ const Index = ({auth, stores}) => {
 
     <div className="py-5">
         <div className="mx-auto px-3 sm:px-6 lg:px-8">
-            <CreateSelect />  
+            <CreateSelect createFunction={setCreate}/>  
 
-            <CreateSellerForm/>
+          {create === "Seller" ? <CreateSellerForm stores={stores}/> : ""}
+          {create === "Admin" ? <CreateAdminForm /> : ""}
+          {create === "Store" ? <CreateStoreForm /> : ""}
         </div>
     </div>
     </AuthenticatedLayout>
   )
 }
 
-export default Index
+export default Create;

@@ -1,12 +1,19 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-export default function CreateSelect() {
+export default function CreateSelect({createFunction}) {
   const [create, setCreate] = React.useState('Seller');
+
+  useEffect(() => {
+    // Notify parent component of the new value whenever it changes
+    createFunction(create);
+  }, [create, createFunction]);
+
 
   const handleChange = (event) => {
     setCreate(event.target.value);
@@ -23,6 +30,7 @@ export default function CreateSelect() {
           sx={{maxWidth: "200px"}}
         >
           <MenuItem value={"Seller"}>Seller</MenuItem>
+          <MenuItem value={"Admin"}>Admin</MenuItem>
           <MenuItem value={"Store"}>Store</MenuItem>
         </Select>
       </FormControl>

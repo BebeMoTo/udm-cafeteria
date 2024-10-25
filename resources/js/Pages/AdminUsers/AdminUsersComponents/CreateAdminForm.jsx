@@ -4,7 +4,7 @@ import { Typography, Button } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import TextInput from '@/Components/TextInput';
 
-export default function CreateSellerForm({stores}) {
+export default function CreateAdminForm() {
 
   return (
     <Box sx={{ minWidth: 120, marginTop: "30px" }}>
@@ -29,20 +29,6 @@ export default function CreateSellerForm({stores}) {
             <option value="" style={{color: "grey"}}>Select Sex</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
-        </select>
-
-        <Typography sx={{marginTop:"8px"}}>Store: </Typography>
-        <select
-        style={{border: "1px solid lightgrey", borderRadius: "5px"}}
-            id="store"
-            name="store"
-            className="mt-1 block w-full"
-            required
-        >
-            <option value="" style={{color: "grey"}}>Select Store</option>
-            {stores.map(store => (
-              <option key={store.id} value={store.id}>{store.name}</option>
-            ))}
         </select>
 
         <Button variant='contained' sx={{marginTop: "2rem"}}>Submit</Button>

@@ -8,7 +8,6 @@ import { grey } from '@mui/material/colors';
 
 const Index = ({auth, stores}) => {
     //Sort the stores by stall_no
-
     const sortedStores = [...stores].sort((a, b) => a.stall_no - b.stall_no);
   return (
     <AuthenticatedLayout

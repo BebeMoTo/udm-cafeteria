@@ -29,6 +29,7 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div>
+                    <h3><b>Register an Account...</b></h3><br />
                     <InputLabel htmlFor="name" value="Name" />
 
                     <TextInput

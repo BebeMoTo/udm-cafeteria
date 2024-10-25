@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Store;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -56,7 +57,13 @@ class UserController extends Controller
      */
     public function create()
     {
-        return Inertia::render('AdminUsers/Create');
+        // Fetch the stores
+        $stores = Store::all();
+
+        // Pass stores to the 'AdminUsers/Create' page
+        return Inertia::render('AdminUsers/Create', [
+            'stores' => $stores,
+        ]);
     }
 
     /**

@@ -27,22 +27,22 @@ class StoreController extends Controller
         ]);
     }
 
-    public function sellerOption()
-    {
-        $stores = Store::all(); // Fetch all stores
+    // public function sellerOption()
+    // {
+    //     $stores = Store::all(); // Fetch all stores
 
-        //return response()->json($stores);
-        return Inertia::render('AdminUsers/Create', [
-            'stores' => $stores,
-        ]);
-    }
+    //     //return response()->json($stores);
+    //     return Inertia::render('AdminUsers/Create', [
+    //         'stores' => $stores,
+    //     ]); 
+    // }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+
     }
 
     /**
