@@ -18,12 +18,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('type')->default('User');
-            $table->decimal('balance', 10, 2)->default(0);
-            $table->decimal('expense', 10, 2)->default(0); 
+            $table->decimal('balance', 10, 2)->default(0)->nullable();
+            $table->decimal('expense', 10, 2)->default(0)->nullable(); 
 
             $table->string('department')->default("None");
             $table->string('sex')->nullable();
-            $table->foreignId('store_id')->default(0);
+            $table->foreignId('store_id')->nullable()->default(null);
             $table->rememberToken();
             $table->timestamps();
         });

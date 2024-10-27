@@ -7,7 +7,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function CreateSelect({createFunction}) {
-  const [create, setCreate] = React.useState('Seller');
+  const [create, setCreate] = React.useState('Store');
 
   useEffect(() => {
     // Notify parent component of the new value whenever it changes
@@ -21,7 +21,7 @@ export default function CreateSelect({createFunction}) {
 
   return (
     <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
+      <FormControl fullWidth >
         <InputLabel id="demo-simple-select-label">Create</InputLabel>
         <Select
           value={create}

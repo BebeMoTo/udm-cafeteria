@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->float('balance');
             $table->longText('description');
-            $table->integer('state');
+            $table->integer('state')->default(0);
             $table->float('additional_fee');
             $table->timestamps();
         });

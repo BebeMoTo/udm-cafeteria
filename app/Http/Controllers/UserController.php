@@ -71,7 +71,47 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate the form data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'sex' => 'required|in:Male,Female',
+            'storeNum' => 'nullable|integer',
+            'type' => 'required|in:Admin,Seller',
+        ]);
+
+        if ($validated['type'] === "Seller") {
+            // Save the user in the database
+            $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']), // Encrypt the password
+            'sex' => $validated['sex'],
+            'type' => $validated['type'], 
+            'balance' => null,
+            'expense' => null,
+            'department' => 'None',
+            'store_id' => $validated['storeNum'], // Now can be set to null safely
+        ]);
+        } else {
+            // Save the user in the database
+            $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']), // Encrypt the password
+            'sex' => $validated['sex'],
+            'type' => $validated['type'], // Assuming this is an admin creation form
+            'balance' => 0,
+            'expense' => 0,
+            'department' => 'None',
+            'store_id' => $validated['storeNum'], // Now can be set to null safely
+        ]);
+        }
+        
+
+        // Redirect with a success message
+        return redirect()->back()->with('success', 'Admin user created successfully');
     }
 
     /**

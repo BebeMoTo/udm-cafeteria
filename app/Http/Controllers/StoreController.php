@@ -50,7 +50,25 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate the form data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'stallNo' => 'required|integer',
+            'additionalFee' => 'required|numeric|min:0',
+            'balance' => 'required|numeric|min:0',
+        ]);
+
+        $store = Store::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'stall_no' => $validated['stallNo'],
+            'additional_fee' => $validated['additionalFee'],
+            'balance' => $validated['balance'],
+            ]);
+
+        // Redirect with a success message
+        return redirect()->back()->with('success', 'Admin user created successfully');
     }
 
     /**

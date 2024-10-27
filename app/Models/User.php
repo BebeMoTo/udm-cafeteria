@@ -21,11 +21,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'balance',
-        'expenses',
+        'expense',
         'department', // Add this line
         'sex', // Add this line
-    ];
-    protected $guarded = [
+        'store_id',
         'type',
     ];
 

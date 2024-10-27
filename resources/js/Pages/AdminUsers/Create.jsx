@@ -6,7 +6,39 @@ import CreateSellerForm from './AdminUsersComponents/CreateSellerForm';
 import CreateAdminForm from './AdminUsersComponents/CreateAdminForm';
 import CreateStoreForm from './AdminUsersComponents/CreateStoreForm';
 
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { Button } from '@mui/material';
+
 const Create = ({auth, stores}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const addedSnackbar = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   const [create, setCreate] = React.useState('Seller');
 
   return (
@@ -22,10 +54,21 @@ const Create = ({auth, stores}) => {
         <div className="mx-auto px-3 sm:px-6 lg:px-8">
             <CreateSelect createFunction={setCreate}/>  
 
-          {create === "Seller" ? <CreateSellerForm stores={stores}/> : ""}
-          {create === "Admin" ? <CreateAdminForm /> : ""}
-          {create === "Store" ? <CreateStoreForm /> : ""}
+          {create === "Seller" ? <CreateSellerForm stores={stores} addedSnackbar={addedSnackbar}/> : ""}
+          {create === "Admin" ? <CreateAdminForm addedSnackbar={addedSnackbar} /> : ""}
+          {create === "Store" ? <CreateStoreForm addedSnackbar={addedSnackbar} /> : ""}
         </div>
+    </div>
+
+
+    <div>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message="Successfully Added!"
+        action={action}
+      />
     </div>
     </AuthenticatedLayout>
   )
