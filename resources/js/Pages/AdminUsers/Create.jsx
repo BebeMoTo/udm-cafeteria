@@ -9,13 +9,16 @@ import CreateStoreForm from './AdminUsersComponents/CreateStoreForm';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { Button } from '@mui/material';
 
 const Create = ({auth, stores}) => {
   const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = useState("Successfully Added!");
 
   const addedSnackbar = () => {
     setOpen(true);
+  };
+  const addedSnackbarMessage = (mess) => {
+    setMessage(mess);
   };
 
   const handleClose = (event, reason) => {
@@ -54,9 +57,9 @@ const Create = ({auth, stores}) => {
         <div className="mx-auto px-3 sm:px-6 lg:px-8">
             <CreateSelect createFunction={setCreate}/>  
 
-          {create === "Seller" ? <CreateSellerForm stores={stores} addedSnackbar={addedSnackbar}/> : ""}
-          {create === "Admin" ? <CreateAdminForm addedSnackbar={addedSnackbar} /> : ""}
-          {create === "Store" ? <CreateStoreForm addedSnackbar={addedSnackbar} /> : ""}
+          {create === "Seller" ? <CreateSellerForm stores={stores} addedSnackbar={addedSnackbar} addedSnackbarMessage={addedSnackbarMessage}/> : ""}
+          {create === "Admin" ? <CreateAdminForm addedSnackbar={addedSnackbar} addedSnackbarMessage={addedSnackbarMessage}/> : ""}
+          {create === "Store" ? <CreateStoreForm addedSnackbar={addedSnackbar} addedSnackbarMessage={addedSnackbarMessage}/> : ""}
         </div>
     </div>
 
@@ -66,7 +69,7 @@ const Create = ({auth, stores}) => {
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
-        message="Successfully Added!"
+        message={message}
         action={action}
       />
     </div>

@@ -5,20 +5,49 @@ import Box from '@mui/material/Box';
 import { Typography, Button } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import TextInput from '@/Components/TextInput';
+import axios from 'axios';
 
-export default function CreateSellerForm({stores, addedSnackbar}) {
+export default function CreateSellerForm({stores, addedSnackbar, addedSnackbarMessage}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sex, setSex] = useState('');
   const [storeNum, setStore] = useState(0);
   const type = "Seller";
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setErrors({}); // Clear previous errors
+
     // Submit form data to the Inertia controller route
-    Inertia.post('/users', { name, email, password, sex, storeNum, type });
+        try {
+      const response = await axios.post('/users', { name, email, password, sex, storeNum: storeNum || null, type });
+      console.log(response.data); // Handle success (e.g., show a message or redirect)
+      addedSnackbar();
+      addedSnackbarMessage("Seller Successfully Added!");
+      setStore(0);
+      setSex("");
+      setName("");
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        // Set validation errors
+        setErrors(error.response.data.errors);
+        addedSnackbar();
+        if (name === "" || email === "" || password === "" || sex === "" || storeNum === 0) {
+          addedSnackbarMessage("Please fill up the form.");
+        }
+        else {
+          addedSnackbarMessage(errors.name || errors.email || errors.password || errors.sex || errors.storeNum || "There is an error occured while saving. Please try again later");
+        }
+
+        console.log('Validation errors:', error.response.data.errors);
+      } else {
+        console.error('There was an error submitting the form!', error);
+      }
+    }
   };
 
   return (

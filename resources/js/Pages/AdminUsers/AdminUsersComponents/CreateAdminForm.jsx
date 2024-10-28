@@ -1,25 +1,53 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Inertia } from '@inertiajs/inertia';
 import Box from '@mui/material/Box';
 import { Typography, Button, FormControl } from '@mui/material';
 import TextInput from '@/Components/TextInput';
+import axios from 'axios';
 
-export default function CreateAdminForm() {
+export default function CreateAdminForm({addedSnackbar, addedSnackbarMessage}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sex, setSex] = useState('');
   const [storeNum, setStore] = useState(null);
   const type = "Admin";
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevents page reload
-    console.log('Form submitted', { name, email, password, sex, storeNum, type });
-    
-    // Submit form data to the Inertia controller route
-    Inertia.post('/users', { name, email, password, sex, storeNum, type });
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+    setErrors({}); // Clear previous errors
+
+    try {
+      const response = await axios.post('/users', { name, email, password, sex, storeNum: storeNum || null, type });
+      console.log(response.data); // Handle success (e.g., show a message or redirect)
+      addedSnackbar();
+      addedSnackbarMessage("Admin Successfully Added!");
+      setStore(null);
+      setSex("");
+      setName("");
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        // Set validation errors
+        setErrors(error.response.data.errors);
+        addedSnackbar();
+        if (name === "" || email === "" || password === "" || sex === "") {
+          addedSnackbarMessage("Please fill up the form.");
+        }
+        else {
+          addedSnackbarMessage(errors.name || errors.email || errors.password || errors.sex || "There is an error occured while saving. Please try again later");
+        }
+
+        console.log('Validation errors:', error.response.data.errors);
+      } else {
+        console.error('There was an error submitting the form!', error);
+      }
+    }
   };
+
 
   return (
     <Box sx={{ minWidth: 120, marginTop: "30px" }}>

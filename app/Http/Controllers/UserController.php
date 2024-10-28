@@ -79,8 +79,10 @@ class UserController extends Controller
             'sex' => 'required|in:Male,Female',
             'storeNum' => 'nullable|integer',
             'type' => 'required|in:Admin,Seller',
+        ], [
+            'email.unique' => 'The email is already taken. Please choose a different one.',
         ]);
-
+        
         if ($validated['type'] === "Seller") {
             // Save the user in the database
             $user = User::create([
@@ -93,7 +95,7 @@ class UserController extends Controller
             'expense' => null,
             'department' => 'None',
             'store_id' => $validated['storeNum'], // Now can be set to null safely
-        ]);
+            ]);
         } else {
             // Save the user in the database
             $user = User::create([

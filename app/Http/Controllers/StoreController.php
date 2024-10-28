@@ -52,11 +52,14 @@ class StoreController extends Controller
     {
         // Validate the form data
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:stores,name',
             'description' => 'required|string|max:255',
-            'stallNo' => 'required|integer',
+            'stallNo' => 'required|integer|unique:stores,stall_no',
             'additionalFee' => 'required|numeric|min:0',
             'balance' => 'required|numeric|min:0',
+        ], [
+            'name.unique' => 'The store name is already in use. Please choose a different name.',
+            'stallNo.unique' => 'The stall number is already in use. Please choose a stall.',
         ]);
 
         $store = Store::create([
@@ -68,7 +71,7 @@ class StoreController extends Controller
             ]);
 
         // Redirect with a success message
-        return redirect()->back()->with('success', 'Admin user created successfully');
+        return redirect()->back()->with('success', 'Store created successfully');
     }
 
     /**
