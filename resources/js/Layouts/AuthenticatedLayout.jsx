@@ -7,7 +7,7 @@ import { Link } from '@inertiajs/react';
 import WalletIcon from '@mui/icons-material/Wallet';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
-export default function Authenticated({ user, header, type, balance, children }) {
+export default function Authenticated({ user, header, type, balance, children, storeBalance }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [userBalance, setBalance] = useState(balance);
 
@@ -52,6 +52,21 @@ export default function Authenticated({ user, header, type, balance, children })
                                     <NavLink href={route('users.create')} active={route().current('users.create')}>
                                         <AdminPanelSettingsIcon/>
                                         Create
+                                    </NavLink>
+                                )}
+                                {type === 'Seller' && (
+                                    <NavLink href={route('items.index')} active={route().current('items.index')}>
+                                        Inventory
+                                    </NavLink>
+                                )}
+                                {type === 'Seller' && (
+                                    <NavLink href={route('users.create')} active={route().current('users.create')}>
+                                        Orders
+                                    </NavLink>
+                                )}
+                                {type === 'Seller' && (
+                                    <NavLink href={route('users.create')} active={route().current('users.create')}>
+                                        Transactions
                                     </NavLink>
                                 )}
                                 
@@ -154,6 +169,21 @@ export default function Authenticated({ user, header, type, balance, children })
                                 Create
                             </ResponsiveNavLink>
                         )}
+                        {type === 'Seller' && (
+                            <ResponsiveNavLink href={route(`items.index`)} active={route().current(`items.index`)}>
+                                Inventory
+                            </ResponsiveNavLink>
+                        )}
+                        {type === 'Seller' && (
+                            <ResponsiveNavLink href={route('users.create')} active={route().current('users.create')}>
+                                Orders
+                            </ResponsiveNavLink>
+                        )}
+                        {type === 'Seller' && (
+                            <ResponsiveNavLink href={route('users.create')} active={route().current('users.create')}>
+                                Transactions
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
@@ -172,9 +202,15 @@ export default function Authenticated({ user, header, type, balance, children })
                 </div>
             </nav>
 
-            {header && (
+            {header && type !== "Seller" && (
                 <header className="bg-white shadow" style={{paddingTop: "64px"}}>
                     <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{userBalance} <span style={{fontSize: ".7rem", color: "gray"}}>({user.expense})</span></h2></div>
+                    <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
+                </header>
+            )}
+            {header && type === "Seller" && (
+                <header className="bg-white shadow" style={{paddingTop: "64px"}}>
+                    <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{storeBalance} <span style={{fontSize: ".7rem", color: "gray"}}></span></h2></div>
                     <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}

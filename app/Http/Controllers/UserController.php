@@ -121,7 +121,14 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        if (auth()->user()->type === 'Seller') {
+            $user = User::with('store')->find($id); // Load the store relationship
+            return Inertia::render('Dashboard', [
+                'auth' => [
+                    'user' => $user,
+                ],
+            ]);
+        }
     }
 
     /**

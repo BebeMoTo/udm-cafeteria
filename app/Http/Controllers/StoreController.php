@@ -13,12 +13,6 @@ class StoreController extends Controller
      */
     public function index()
     {
-        //Redirect to dashboard if seller
-        if (auth()->user()->type === 'Seller') {
-            return Inertia::render('Dashboard'); // Redirect to a different route or page
-        }
-
-
         $stores = Store::all(); // Fetch all stores
 
         //return response()->json($stores);

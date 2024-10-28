@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ItemController extends Controller
 {
@@ -12,7 +13,13 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
+        $storeId = auth()->user()->store_id;
+        $items = Item::all()->where('store_id', $storeId); // Fetch all stores
+
+        //return response()->json($stores);
+        return Inertia::render('SellerInventory/Index', [
+            'items' => $items,
+        ]);
     }
 
     /**
