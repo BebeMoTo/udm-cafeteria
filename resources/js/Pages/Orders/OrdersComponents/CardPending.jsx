@@ -13,7 +13,7 @@ export default function CardPending({order, children}) {
       <CardMedia
         component="img"
         sx={{ width: '30%', height: '100%' }} 
-        image={order.item.image_path}
+        image={`storage/${order.item.image_path}`}
         alt={name}
       />
       {/* Right side with content */}

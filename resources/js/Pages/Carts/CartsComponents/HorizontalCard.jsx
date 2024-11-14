@@ -13,7 +13,7 @@ export default function HorizontalCard({cartQuantity, total_price, name, price, 
       <CardMedia
         component="img"
         sx={{ width: '30%', height: '100%' }} 
-        image={image_path}
+        image={`/storage${image_path}`}
         alt={name}
       />
       {/* Right side with content */}

@@ -36,6 +36,8 @@ Route::middleware(['web','auth'])->group(function () {
 
     Route::resource('users', UserController::class);
     Route::resource('items', ItemController::class);
+    Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+    Route::post('/items/store', [ItemController::class, 'store']);
 });
 
 require __DIR__.'/auth.php';

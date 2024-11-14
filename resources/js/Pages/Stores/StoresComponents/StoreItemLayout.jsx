@@ -47,7 +47,7 @@ export default function StoreItemLayout({ name, price, image, state, type, class
                 <CardMedia
                     component="img"
                     height="140"
-                    image={image}
+                    image={`/storage${image}`}
                     alt={name}
                     sx={{ minHeight: "200px", maxHeight: "200px", padding: 0 }}
                 />

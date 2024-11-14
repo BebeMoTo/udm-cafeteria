@@ -130,7 +130,7 @@ function StoreItemInfo({ item, open, onClose }) {
         <Box sx={{ padding: 2 }}>
           <CardMedia
             sx={{ height: 140, borderRadius: "10px", marginBottom: "1rem" }}
-            image={item.image_path}
+            image={`/storage${item.image_path}`}
             title={item.name}
           />
           <Typography variant='h5' sx={{ fontWeight: "bold" }}>
