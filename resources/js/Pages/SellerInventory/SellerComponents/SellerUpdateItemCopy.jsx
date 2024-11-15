@@ -3,65 +3,94 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, S
 import { blueGrey } from '@mui/material/colors';
 import axios from 'axios';
 
-const SellerAddItem = ({ open, item, onClose }) => {
-    const [image, setImage] = useState("");
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [price, setPrice] = useState(0);
-    const [quantity, setQuantity] = useState(0);
-    const [type, setType] = useState("");
-    const [state, setState] = useState("");
-    const [store_id, setStore_id] = useState(0);
+const SellerUpdateItemCopy = ({ open, item, onClose }) => {
+  const [image, setImage] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [type, setType] = useState("");
+  const [state, setState] = useState("");
+  const [store_id, setStore_id] = useState(0);
+  const [previewImage, setPreviewImage] = useState('');
 
-    const [previewImage, setPreviewImage] = useState('');
+  // Populate the form with item data when the modal opens
+  useEffect(() => {
+    if (item) {
+      setName(item.name);
+      setDescription(item.description);
+      setPrice(item.price);
+      setQuantity(item.quantity);
+      setState(item.state);
+      setType(item.type);
+      setImage(null);
+      setPreviewImage(`/storage${item.image_path}` || ''); // Set initial preview image
+    }
+  }, [item]);
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          setImage(file); // Update form data with the new image file
-    
-          // Show preview of the new image
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setPreviewImage(reader.result);
-          };
-          reader.readAsDataURL(file);
-        }
+  // Handle image upload and preview update
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file); 
+
+      // Show preview of the new image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
       };
+      reader.readAsDataURL(file);
+    }
+  };
 
-//handle submission
-const handleSubmit = async () => {
-    
+  //handle submission
+  const handleSubmit = async () => {
     try {
-      await axios.post('/items/store', {image, name, description, price, quantity, type, state, store_id}, {
+      // Create FormData for handling file uploads and other form data
+      const formData = new FormData();
+      if (image) {
+        formData.append('image', image);
+      }  
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('price', price);
+      formData.append('quantity', quantity);
+      formData.append('type', type);
+      formData.append('state', state);
+      formData.append('store_id', store_id);
+  
+      // Make PUT request using Axios
+      await axios.post(`/items/${item.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'X-HTTP-Method-Override': 'PUT', // Spoof the PUT method
         },
       });
-      onClose(); // Close the modal after successful submission
+  
+      // Close the modal and reload the page after successful update
+      onClose();
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
-      console.error('Failed to add item:', error);
-      // Handle errors as needed
+      console.error('Failed to edit item:', error.response?.data);
     }
   };
   
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Add Item</DialogTitle>
+      <DialogTitle>Edit Item Info</DialogTitle>
       <DialogContent>
         {/* Image Preview and Upload */}
         <Box mt={2} mb={2} textAlign="center">
           {previewImage ? (
             <img src={previewImage} alt="Item Preview" style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} />
           ) : (
-            <p>Select an Image</p>
+            <p>No image available</p>
           )}
           <Button variant="contained" component="label" sx={{ backgroundColor: blueGrey[800] }}>
-            Choose
+            Change Image
             <input
               type="file"
               hidden
@@ -140,4 +169,4 @@ const handleSubmit = async () => {
   );
 };
 
-export default SellerAddItem;
+export default SellerUpdateItemCopy;

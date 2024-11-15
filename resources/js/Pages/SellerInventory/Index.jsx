@@ -7,6 +7,7 @@ import SellerSearchSort from './SellerComponents/SellerSearchSort';
 import StoreItemLayout from '../Stores/StoresComponents/StoreItemLayout';
 import SellerItemInfo from './SellerComponents/SellerItemInfo';
 import SellerUpdateItem from './SellerComponents/SellerUpdateItem';
+import SellerUpdateItemCopy from './SellerComponents/SellerUpdateItemCopy';
 import SellerAddItem from './SellerComponents/SellerAddItem';
 import { Button } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
@@ -141,7 +142,7 @@ export default function Index({ auth, items: initialItems }) {
                 )}
             </div>
 
-            <SellerUpdateItem 
+            <SellerUpdateItemCopy 
                 open={openEditModal}
                 item={itemToEdit}
                 onClose={handleEditClose}
