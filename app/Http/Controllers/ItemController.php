@@ -6,6 +6,7 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -48,23 +49,30 @@ class ItemController extends Controller
             'store_id' => 'required|integer',
         ]);
     
-        // Handle image upload
-        $imagePath = $request->file('image')->storeAs('public/images/items', $request->file('image')->getClientOriginalName());
+        // Handle image upload with a unique name
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $uniqueName = Str::uuid() . '.' . $image->getClientOriginalExtension(); // Generate unique name
+            $imagePath = $image->storeAs('public/images/items', $uniqueName); // Store with unique name
     
-        // Save the item
-        //Item::create($validated);
-        $item = new Item();
-        $item->name = $validated['name'];
-        $item->description = $validated['description'];
-        $item->price = $validated['price'];
-        $item->quantity = $validated['quantity'];
-        $item->type = $validated['type'];
-        $item->state = $validated['state'];
-        $item->image_path = str_replace('public', '', $imagePath); // Save relative path
-        $item->store_id = auth()->user()->store_id;
-        $item->save();
+            // Save the relative path to the database
+            $validated['image_path'] = str_replace('public', '', $imagePath);
+        } else {
+            $validated['image_path'] = null; // No image uploaded
+        }
     
-        //return response()->json(['message' => 'Item created successfully'], 201);
+        // Create the item
+        $item = Item::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'quantity' => $validated['quantity'],
+            'type' => $validated['type'],
+            'state' => $validated['state'],
+            'image_path' => $validated['image_path'],
+            'store_id' => auth()->user()->store_id,
+        ]);
+    
         return response()->json([
             'message' => 'Item added successfully!',
             'item' => $item,
@@ -112,7 +120,7 @@ public function update(Request $request, Item $item)
 
         // Store the new image
         $imagePath = $request->file('image')->store('images/items', 'public');
-        $item->image_path = '/' . $imagePath; // Update the image path
+        $item->image_path = '/' .$imagePath ; // Update the image path
     }
 
     // Update other fields

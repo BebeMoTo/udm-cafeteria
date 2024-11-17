@@ -16,7 +16,7 @@ export default defineConfig({
         hmr: {
             host: '192.168.254.187',  // Replace with your local IP address
             //host: '172.16.32.108',  // Replace with your local IP address
-            //host: '192.168.10.177',  // Replace with your local IP address
+            //host: '192.168.209.177',  // Replace with your local IP address
         },
     },
 });

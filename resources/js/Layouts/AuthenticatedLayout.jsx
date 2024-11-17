@@ -60,7 +60,7 @@ export default function Authenticated({ user, header, type, balance, children, s
                                     </NavLink>
                                 )}
                                 {type === 'Seller' && (
-                                    <NavLink href={route('users.create')} active={route().current('users.create')}>
+                                    <NavLink href={route('orders.index')} active={route().current('orders.index')}>
                                         Orders
                                     </NavLink>
                                 )}
@@ -175,7 +175,7 @@ export default function Authenticated({ user, header, type, balance, children, s
                             </ResponsiveNavLink>
                         )}
                         {type === 'Seller' && (
-                            <ResponsiveNavLink href={route('users.create')} active={route().current('users.create')}>
+                            <ResponsiveNavLink href={route('orders.index')} active={route().current('orders.index')}>
                                 Orders
                             </ResponsiveNavLink>
                         )}

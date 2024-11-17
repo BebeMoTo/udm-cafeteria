@@ -10,6 +10,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\PayMongoService;
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -38,6 +40,33 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('items', ItemController::class);
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
     Route::post('/items/store', [ItemController::class, 'store']);
+
+
+
+
+
+    //paymongo
+    Route::get('/paymongo-test', function (PayMongoService $payMongoService) {
+        $response = $payMongoService->createCheckoutSession([
+            'line_items' => [
+                [
+                    'name' => 'Test Item',
+                    'amount' => 2000, // PHP 10.00
+                    'currency' => 'PHP',
+                    'quantity' => 1,
+                ],
+            ],
+            'payment_method_types' => ['card', 'gcash'], // Payment methods
+            'description' => 'Test Payment',
+            'redirect' => [
+                'success' => url('/success'),
+                'failed' => url('/failed'),
+            ],
+        ]);
+    
+        return response()->json($response);
+    });
+    
 });
 
 require __DIR__.'/auth.php';

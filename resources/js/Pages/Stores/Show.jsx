@@ -135,6 +135,7 @@ const Show = ({ auth, store, items }) => {
                     {selectedItem && (
                         <StoreItemInfo
                             item={selectedItem}
+                            additional_fee={store.additional_fee}
                             open={Boolean(selectedItem)}
                             onClose={handleCloseDrawer}
                         />

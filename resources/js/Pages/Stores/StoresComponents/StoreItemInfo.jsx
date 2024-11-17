@@ -17,7 +17,7 @@ import BentoIcon from '@mui/icons-material/Bento';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
-function StoreItemInfo({ item, open, onClose }) {
+function StoreItemInfo({ item, open, onClose, additional_fee }) {
   const { auth } = usePage().props;
   const [itemQuantity, setItemQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ function StoreItemInfo({ item, open, onClose }) {
         item_id: item.id,
         store_id: item.store_id,
         quantity: itemQuantity,
-        total_price: itemQuantity * item.price
+        total_price: (itemQuantity * item.price) + ((itemQuantity * item.price) * (additional_fee * .1000)),
       });
 
       setSnackbarMessage('Item added to cart successfully!');

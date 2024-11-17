@@ -15,25 +15,47 @@ class OrderController extends Controller
      */
     public function index()
     {
-    // Get the current authenticated user's ID
-    $userId = auth()->id();
+        if (auth()->user()->type !== "Seller") {
+            // Get the current authenticated user's ID
+            $userId = auth()->id();
 
-    // Fetch cart items for the authenticated user
-    $orders = Order::with([
-            'item' => function($query) {
-                $query->select('id', 'name', 'price', 'quantity', 'state', 'image_path'); // Specify the columns you want to include
-            },
-            'store' => function($query) {
-                $query->select('id', 'name', 'state', 'additional_fee'); // Specify columns for the store if needed
-            }
-        ])
-                 ->where('user_id', $userId)
-                 ->get();
+            // Fetch cart items for the authenticated user
+            $orders = Order::with([
+                    'item' => function($query) {
+                        $query->select('id', 'name', 'price', 'quantity', 'state', 'image_path'); // Specify the columns you want to include
+                    },
+                    'store' => function($query) {
+                        $query->select('id', 'name', 'state', 'additional_fee'); // Specify columns for the store if needed
+                    }
+                ])
+                        ->where('user_id', $userId)
+                        ->get();
 
-    // Pass the data to the Inertia view
-    return Inertia::render('Orders/Index', [
-        'orders' => $orders
-    ]);
+            // Pass the data to the Inertia view
+            return Inertia::render('Orders/Index', [
+                'orders' => $orders
+            ]);
+        }
+        else{
+            // Get the current authenticated user's ID
+            $store_id = auth()->user()->store_id;
+
+            // Fetch cart items for the authenticated user
+            $orders = Order::with([
+                'item' => function($query) {
+                    $query->select('id', 'name', 'price', 'quantity', 'state', 'image_path'); // Specify the columns you want to include
+                },
+                'user' => function($query) {
+                    $query->select('id', 'name', 'department'); // Specify columns for the store if needed
+                }
+            ])
+                    ->where('store_id', $store_id)
+                    ->get()->toArray();
+        // Pass the data to the Inertia view
+        return Inertia::render('SellerOrders/Index', [
+            'orders' => $orders
+        ]);
+        }
     }
 
     /**

@@ -6,7 +6,7 @@ import SellerItemSort from './SellerComponents/SellerItemSort';
 import SellerSearchSort from './SellerComponents/SellerSearchSort';
 import StoreItemLayout from '../Stores/StoresComponents/StoreItemLayout';
 import SellerItemInfo from './SellerComponents/SellerItemInfo';
-import SellerUpdateItem from './SellerComponents/SellerUpdateItem';
+//import SellerUpdateItem from './SellerComponents/SellerUpdateItem';
 import SellerUpdateItemCopy from './SellerComponents/SellerUpdateItemCopy';
 import SellerAddItem from './SellerComponents/SellerAddItem';
 import { Button } from '@mui/material';
