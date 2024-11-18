@@ -454,7 +454,7 @@ public function generalCancel(Request $request)
 
             $randomItems = Item::where('type', $type)
                 ->whereNotIn('id', $orderedItemIds) // Exclude already ordered items
-                ->where('state', 'available') // Only available items
+                ->where('state', 1) // Only available items
                 ->with('store')
                 ->inRandomOrder() // Randomize the results
                 ->take($typeProportion) // Limit to the proportional count
@@ -465,6 +465,81 @@ public function generalCancel(Request $request)
         // Ensure the total recommendations do not exceed 20 items
         $recommendedItems = $recommendedItems->take(20);
 
+        /*----------------------------------------------------------------------------------------------*/
+        // Daily Orders
+        $dailyOrders = Order::where('user_id', $userId)
+        ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+            ];
+        });
+
+
+
+        //for seller
+        $storeId = User::where('id', $userId)->value('store_id');
+
+        $dailyIncome = Order::where('store_id', $storeId) // Filter by store ID
+        ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+            ];
+        });
+
+        //top items on your shop
+        $storeTopSellingItems = Order::where('store_id', $storeId) // Filter by store ID
+        ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select('item_id', DB::raw('COUNT(*) as order_count')) // Count orders per item
+        ->groupBy('item_id') // Group by item
+        ->orderByDesc('order_count') // Order by most orders
+        ->with('item') // Eager load item details
+        ->take(5) // Limit to 5
+        ->get()
+        ->map(function ($order) {
+            return [
+                'item_name' => $order->item->name ?? 'Unknown Item',
+                'order_count' => $order->order_count,
+            ];
+        });
+
+        // Total Sales Today
+        $salesToday = Order::where('store_id', $storeId)
+        ->whereDate('created_at', Carbon::today())
+        ->whereIn('status', ['Accepted', 'Claimed'])
+        ->sum('total_price');
+
+        // Total Sales This Month
+        $salesThisMonth = Order::where('store_id', $storeId)
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->whereYear('created_at', Carbon::now()->year)
+        ->whereIn('status', ['Accepted', 'Claimed'])
+        ->sum('total_price');
+
+        // Pending Orders Count
+        $pendingOrders = Order::where('store_id', $storeId)
+        ->where('status', 'Pending')
+        ->count();
+
+        // Cancelled Orders Count
+        $acceptedOrders = Order::where('store_id', $storeId)
+        ->where('status', 'Accepted')
+        ->count();
+
 
             Log::info('Top selling items:', $topSellingItems->toArray());
             Log::info('Top 10 items ordered by user:', $userTopItems->toArray());
@@ -474,6 +549,38 @@ public function generalCancel(Request $request)
             'topSellingItems' => $topSellingItems,
             'userTopItems' => $userTopItems, // Include user's top items in the response
             'recommendedItems' => $recommendedItems,
+            'dailyOrders' => $dailyOrders,
+            'dailyIncome' => $dailyIncome,
+            'storeTopSellingItems' => $storeTopSellingItems,
+            
+            'salesToday' => $salesToday,
+            'salesThisMonth' => $salesThisMonth,
+            'pendingOrders' => $pendingOrders,
+            'acceptedOrders' => $acceptedOrders,
+        ]);
+    }
+
+    //Get the user expenses last 7 days
+    public function getUserOrderStats()
+    {
+        $userId = auth()->id(); // Get authenticated user ID
+
+        // Calculate the total daily orders for the past 7 days
+        $dailyOrders = Order::where('user_id', $userId)
+            ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'date' => $order->date,
+                    'total_amount' => $order->total_amount,
+                ];
+            });
+
+        return inertia('Dashboard', [
+            'dailyOrders' => $dailyOrders,
         ]);
     }
 

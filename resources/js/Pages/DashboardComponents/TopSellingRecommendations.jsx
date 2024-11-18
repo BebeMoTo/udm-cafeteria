@@ -1,11 +1,11 @@
 import React from 'react';
 import TopSellingItemLayout from './TopSellingItemLayout';
-import TopSellingItemInfo from './TopSellingItemInfo';
+import TopSellingRecommendationInfo from './TopSellingRecommendationInfo';
 import Grid from '@mui/material/Grid';
 import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
-const TopSellingRecommendaitons = ({topSelling, chapterTitle}) => {
+const TopSellingRecommendations = ({topSelling, chapterTitle}) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
 
@@ -33,7 +33,7 @@ const TopSellingRecommendaitons = ({topSelling, chapterTitle}) => {
 
 
   return (
-    <div className='topSellingContainer'>
+    <div className='topSellingContainer' style={{marginBottom: "16px"}}>
       <h2 style={{fontSize: "20px"}}>{chapterTitle}</h2>
       <Grid container spacing={2} mt={0}>
       <Box
@@ -73,7 +73,7 @@ const TopSellingRecommendaitons = ({topSelling, chapterTitle}) => {
 
 
         {selectedItem && (
-            <TopSellingItemInfo
+            <TopSellingRecommendationInfo
                 item={selectedItem}
                 additional_fee={selectedItem.store.additional_fee}
                 open={Boolean(selectedItem)}
@@ -84,4 +84,4 @@ const TopSellingRecommendaitons = ({topSelling, chapterTitle}) => {
   );
 };
 
-export default TopSellingRecommendaitons;
+export default TopSellingRecommendations;

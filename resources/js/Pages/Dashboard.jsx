@@ -4,7 +4,11 @@ import TopSelling from './DashboardComponents/TopSelling';
 import { useState } from 'react';
 import TopSellingRecommendaitons from './DashboardComponents/TopSellingRecommendations';
 import TopSellingFavorite from './DashboardComponents/TopSellingFavorite';
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems }) {
+import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
+import BarGraph from './DashboardComponents/BarGraph';
+import MyCardSimple from './DashboardComponents/MyCardSimple';
+
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
     const [recommended, setRecommended] = useState(recommendedItems);
@@ -29,13 +33,30 @@ console.log('Props received:', props); // Debugging
         >
             <Head title="Dashboard" />
 
-            <div className="py-5">
+            <div className="py-5 ">
                 <div className=" mx-auto sm:px-6 lg:px-8">
+
+                <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto"}}>                
+                    {auth.user.type === "Seller" ? <MyCardSimple number={salesToday.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple number={pendingOrders} title={"Pending Orders"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple number={acceptedOrders} title={"Accepted Orders"}/> : ""}
+                </div>
+
+
                     {auth.user.type !== "Seller" ? <TopSelling topSelling={topSelling} chapterTitle={"Top Selling Items Today"}/> : ""}
 
                     {auth.user.type !== "Seller" ? userTop && <TopSellingFavorite topFavorite={userTop} chapterTitle={"Your Favorites"}/> : ""}
 
                     {auth.user.type !== "Seller" ? recommended && <TopSellingRecommendaitons topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
+
+                    {auth.user.type !== "Seller" ? <DailyOrdersChart data={dailyOrders}/> : ""}
+
+                    {auth.user.type === "Seller" ? <DailyOrdersChart data={dailyIncome}/> : ""}
+
+                    {auth.user.type === "Seller" ? <BarGraph bestSellingItems={storeTopSellingItems} />: ""}
+
+
 
                 </div>
             </div>

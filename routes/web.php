@@ -59,6 +59,8 @@ Route::middleware(['web','auth'])->group(function () {
     //for dashboard
     //not Seller
     Route::get('/dashboard', [OrderController::class, 'getTopSelling'])->name('dashboard');
+    //past 7 days expenses
+    
 
 
     //paymongo

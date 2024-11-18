@@ -74,3 +74,25 @@ input[type="number"] {
 .topSellingContainerSlide{
   display: flex;
 }
+.glassMo{
+  background: rgba( 41, 138, 54, 0.25 );
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 4px );
+  -webkit-backdrop-filter: blur( 4px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  width: 200px;
+  height: 100px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+.glassMo h1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  font-size: 28px;
+}
+.glassMo b {
+  padding: 8px;
+}
