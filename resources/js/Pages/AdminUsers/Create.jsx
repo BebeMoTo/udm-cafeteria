@@ -53,7 +53,7 @@ const Create = ({auth, stores}) => {
     >
     <Head title="Manage Accounts" />
 
-    <div className="py-5">
+    <div className="py-5 inside-layout-background">
         <div className="mx-auto px-3 sm:px-6 lg:px-8">
             <CreateSelect createFunction={setCreate}/>  
 

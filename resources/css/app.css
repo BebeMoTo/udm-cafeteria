@@ -44,3 +44,23 @@ input[type="number"] {
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
+.inside-layout-background{
+  background-image: linear-gradient(45deg, rgba(0,0,0,.7), rgba(0,0,0,.7)) ,url("/images/background.jpg");
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.modalButtonsBuying{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modalButtonsBuying > * {
+  width: 150px;
+}
+
+.background-food{
+  background-image: url("images/background.jpg");
+}

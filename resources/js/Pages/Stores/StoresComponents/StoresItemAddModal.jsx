@@ -21,7 +21,11 @@ const style = {
   border: 'none', // Remove border
 };
 
-export default function StoresItemAddModal({ open, onClose, onConfirm }) {
+export default function StoresItemAddModal({ open, onClose, onConfirm, onConfirmEWallet }) {
+  
+
+
+
   return (
     <Modal
       open={open}
@@ -33,11 +37,14 @@ export default function StoresItemAddModal({ open, onClose, onConfirm }) {
           }>
         <h2 id="buy-confirmation-title" style={{fontSize: "20px", marginBottom: "5px"}}><b>Confirm to buy</b></h2>
         <p id="delete-confirmation-description">
-          Are you sure you want to buy this item?
+          Are you sure you want to buy this item? Select a payment method below.
         </p><br/>
-        
-        <Button variant='contained' onClick={onConfirm} color="primary" sx={{ marginRight: '5px', backgroundColor: blue[800] }}>Confirm</Button>
-        <Button variant='contained' onClick={onClose}  sx={{ backgroundColor: blueGrey[500] }}>Cancel</Button>
+
+        <div className='modalButtonsBuying'>
+          <Button variant='contained' onClick={onConfirm} color="primary" sx={{backgroundColor: blue[800],  marginBottom: "4px"  }}>Balance</Button>
+          <Button variant='contained' onClick={onConfirmEWallet} sx={{ backgroundColor: blue[800], marginBottom: "4px" }}>E-Wallet</Button>
+          <Button variant='contained' onClick={onClose}  sx={{ backgroundColor: blueGrey[500] }}>Cancel</Button>
+        </div>
       </Box>
     </Modal>
   );

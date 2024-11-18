@@ -14,12 +14,12 @@ import { useState } from 'react';
 
 function userIcon(type) {
     if (type === "Admin") {
-        return (<AdminPanelSettingsIcon color='primary'/>)
+        return (<AdminPanelSettingsIcon sx={{color:"green"}}/>)
     } else if (type === "Seller") {
-        return (<StoreIcon color='primary'/>)
+        return (<StoreIcon sx={{color:"green"}}/>)
     }
     else {
-        return (<PersonIcon color='primary'/>)
+        return (<PersonIcon sx={{color:"green"}}/>)
     }
 }
 

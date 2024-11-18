@@ -164,6 +164,54 @@ const Index = ({auth, carts: initialCarts }) => {
             }
         }
     };
+
+
+    const handleConfirmEWallet = async () => {
+        console.log((itemToBuy.item.price)); 
+        if (itemToBuy) {
+            try {
+                // Send the order data to the backend
+                const response = await axios.post('/orders/paymongo', {
+                    user_id: auth.user.id,
+                    item_id: itemToBuy.item.id,
+                    item_name: itemToBuy.item.name,
+                    store_id: itemToBuy.store.id,
+                    quantity: itemToBuy.quantity,
+                    total_price: itemToBuy.total_price.toFixed(2) * 100,
+                });
+    
+                // Redirect the user to the PayMongo checkout page
+                if (response.data && response.data.checkout_url) {
+                    window.location.href = response.data.checkout_url;
+                }
+
+                // Remove item from cart
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                await fetch(`/carts/${itemToBuy.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+    
+                // Update local state
+                setCarts(carts.filter(cart => cart.id !== itemToBuy.id));
+                
+            } catch (error) {
+                console.error('Error initiating PayMongo payment:', error);
+    
+                // Display error message
+                if (error.response && error.response.data.message) {
+                    setSnackbarMessage(error.response.data.message);
+                } else {
+                    setSnackbarMessage('Failed to initiate payment. Please try again.');
+                }
+                setOpen(true);
+            }
+        }
+    };
+    
     
     
 
@@ -238,6 +286,7 @@ const Index = ({auth, carts: initialCarts }) => {
                     open={modalOpenBuy}
                     onClose={handleCloseModalBuy}
                     onConfirm={handleConfirmBuy}
+                    onConfirmEWallet={handleConfirmEWallet}
                 />
 
                 <Snackbar

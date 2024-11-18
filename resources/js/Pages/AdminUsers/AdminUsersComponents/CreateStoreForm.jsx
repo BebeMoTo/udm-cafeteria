@@ -49,21 +49,21 @@ export default function CreateStoreForm({addedSnackbar, addedSnackbarMessage}) {
   };
 
   return (
-    <Box sx={{ minWidth: 120, marginTop: "30px" }}>
+    <Box sx={{ minWidth: 120, marginTop: "30px", maxWidth: "600px", marginX: "auto"  }}>
       <FormControl fullWidth id='addStoreForm'>
-        <Typography sx={{marginTop:"8px"}}>Name: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Name: </Typography>
         <TextInput value={name} onChange={(e) => setName(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Description: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Description: </Typography>
         <TextInput value={description} onChange={(e) => setDescription(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Stall No: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Stall No: </Typography>
         <TextInput value={stallNo} onChange={(e) => setStallNo(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Additional Fee: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Additional Fee: </Typography>
         <TextInput value={additionalFee} onChange={(e) => setAdditionalFee(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Balance: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Balance: </Typography>
         <TextInput value={balance} onChange={(e) => setBalance(e.target.value)} />
 
 

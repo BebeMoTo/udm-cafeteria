@@ -1,11 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import OrderSelectSort from '../Orders/OrdersComponents/OrderSelectSort';
 import SellerOrdersCardPending from './SellerOrdersComponents/SellerOrdersCardPending';
 import { Button, Typography, Snackbar, Alert } from "@mui/material";
+import { blueGrey } from '@mui/material/colors';
 
 const Index = ({auth, orders: initialOrders}) => {
+    const { csrfToken } = usePage().props; 
     const [orders, setOrders] = useState(initialOrders);
     const [selectedStatus, setSelectedStatus] = useState('Pending');
     const handleStatusChange = (newStatus) => setSelectedStatus(newStatus);
@@ -15,30 +17,86 @@ const Index = ({auth, orders: initialOrders}) => {
     const pendingOrders = useMemo(() => 
         orders
             .filter(order => order.status === 'Pending')
-            .sort((a, b) => new Date(a.pending_time) - new Date(b.pending_time)), 
+            .sort((a, b) => new Date(b.pending_time) - new Date(a.pending_time)), 
         [orders]
     );
     const acceptedOrders = useMemo(() => 
         orders
             .filter(order => order.status === 'Accepted')
-            .sort((a, b) => new Date(a.accepted_time) - new Date(b.accepted_time)), 
+            .sort((a, b) => new Date(b.accepted_time) - new Date(a.accepted_time)), 
         [orders]
     );
     const claimedOrders = useMemo(() => 
         orders
             .filter(order => order.status === 'Claimed')
-            .sort((a, b) => new Date(a.claimed_time) - new Date(b.claimed_time)), 
+            .sort((a, b) => new Date(b.claimed_time) - new Date(a.claimed_time)), 
         [orders]
     );
     const cancelledOrders = useMemo(() => 
         orders
             .filter(order => order.status === 'Cancelled')
-            .sort((a, b) => new Date(a.cancelled_time) - new Date(b.cancelled_time)), 
+            .sort((a, b) => new Date(b.cancelled_time) - new Date(a.cancelled_time)), 
         [orders]
     );
     //End of sorting the items
 
-    console.log(selectedStatus);
+
+    const cancelOrder = (orderId) => {
+      setLoadingOrderId(orderId); // Set loading state
+      axios.post(`/orders/${orderId}/cancel`, {}, {
+          headers: {
+              'X-CSRF-TOKEN': csrfToken,
+          }
+      })
+      .then(response => {
+          console.log('Order cancelled:', response.data);
+          // Update the state to move the order
+          setOrders(prevOrders => 
+              prevOrders.map(order => 
+                  order.id === orderId ? { ...order, status: 'Cancelled' } : order
+              )
+          );
+          const timer = setTimeout(() => {
+            window.location.reload();  // Refresh the page
+          }, 2000); 
+      })
+      .catch(error => {
+          console.error('Error cancelling order:', error);
+      })
+      .finally(() => {
+          setLoadingOrderId(null); // Reset loading state
+      });
+  };
+
+  //Accept order
+  const acceptOrder = (orderId) => {
+    setLoadingOrderId(orderId); // Set loading state
+    axios.post(`/orders/${orderId}/accept`, {}, {
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+        }
+    })
+    .then(response => {
+        console.log('Order accepted:', response.data);
+        // Update the state to reflect the order's new status
+        setOrders(prevOrders => 
+            prevOrders.map(order => 
+                order.id === orderId ? { ...order, status: 'Accepted' } : order
+            )
+        );
+        const timer = setTimeout(() => {
+          window.location.reload(); // Refresh the page
+        }, 2000); 
+    })
+    .catch(error => {
+        console.error('Error accepting order:', error);
+    })
+    .finally(() => {
+        setLoadingOrderId(null); // Reset loading state
+    });
+};
+
+
   return (
     <AuthenticatedLayout
     user={auth.user}
@@ -65,7 +123,16 @@ const Index = ({auth, orders: initialOrders}) => {
                             onClick={() => cancelOrder(order.id)} 
                             disabled={loadingOrderId === order.id} // Disable button if loading
                           >
-                            Cancel Order
+                            Cancel
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            sx={{backgroundColor: blueGrey[800]}}
+                            onClick={() => acceptOrder(order.id)} 
+                            disabled={loadingOrderId === order.id} // Disable button if loading
+                          >
+                            Accept
                           </Button>
                         </SellerOrdersCardPending>
                       </div>

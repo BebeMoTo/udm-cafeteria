@@ -34,7 +34,11 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('stores', StoreController::class);
     Route::resource('orders', OrderController::class);
 
+    //cancel the order
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+    //accept the order
+    Route::post('/orders/{id}/accept', [OrderController::class, 'accept']);
+
 
     Route::resource('users', UserController::class);
     Route::resource('items', ItemController::class);
@@ -42,6 +46,15 @@ Route::middleware(['web','auth'])->group(function () {
     Route::post('/items/store', [ItemController::class, 'store']);
 
 
+    Route::post('/orders/paymongo', [OrderController::class, 'paymongo'])->name('orders.paymongo');
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+    Route::get('/orders/{order}/cancel', [OrderController::class, 'cancelPayment'])->name('orders.cancel');
+
+    Route::post('/webhooks/paymongo', [OrderController::class, 'handleWebhook']);
+
+    Route::get('/orders/success', [OrderController::class, 'generalSuccess'])->name('orders.success-general');
+    Route::get('/orders/cancel', [OrderController::class, 'generalCancel'])->name('orders.cancel-general');
+    Route::get('/setup-webhook', [OrderController::class, 'setupWebhook']);
 
 
 

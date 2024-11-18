@@ -4,7 +4,7 @@ import { Button, CircularProgress, TextField, Select, MenuItem, Snackbar, IconBu
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { green } from '@mui/material/colors';
+import { grey } from '@mui/material/colors';
 import AdminUserCard from './AdminUsersComponents/AdminUserCard';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -23,7 +23,7 @@ import AdminUpdateModal from './AdminUsersComponents/AdminUpdateModal';
 const theme = createTheme({
   palette: {
     primary: {
-      main: green[800], // Set the primary color to green
+      main: grey[50], // Set the primary color to white
     },
   },
 });
@@ -255,11 +255,11 @@ const Index = ({ auth, users: initialUsers }) => {
         balance={auth.user.balance}
       >
         <Head title="Manage Accounts" />
-        <div className="py-5">
+        <div className="py-5 inside-layout-background" style={{minHeight: "100svh"}}>
           <div className="mx-auto px-3 sm:px-6 lg:px-8">
             <div style={{ display: "flex", gap: "16px" }}>
               <TextField
-                sx={{ width: "60%" }}
+                sx={{ width: "60%", color: "black", border: "1px solid white", borderRadius: "5px" }}
                 label="Search by Name or Email"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -268,12 +268,12 @@ const Index = ({ auth, users: initialUsers }) => {
                 }}
                 fullWidth
                 variant="outlined"
-                style={{ marginBottom: '1rem' }}
+                style={{ marginBottom: '1rem', color: "white" }}
               />
 
               {/* Sort Select */}
               <Select
-                sx={{ width: "20%" }}
+                sx={{ width: "20%", color: "white", border: "1px solid white" }}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 fullWidth
@@ -292,7 +292,7 @@ const Index = ({ auth, users: initialUsers }) => {
                 onChange={(e) => setUsertype(e.target.value)} // Handle the user type selection
                 fullWidth
                 variant="outlined"
-                style={{ marginBottom: '1rem' }}
+                style={{ marginBottom: '1rem', color: "white", border: "1px solid white" }}
               >
                 <MenuItem value="All"><CheckIcon /> All</MenuItem>
                 <MenuItem value="Admin"><AdminPanelSettingsIcon /> Admin</MenuItem>
@@ -305,7 +305,7 @@ const Index = ({ auth, users: initialUsers }) => {
               <div key={user.id}>
                 <AdminUserCard user={user} sellerStore={user.store}>
                   <div style={{display: "flex", justifyContent: "flex-end"}}>
-                  <Button variant='contained' color='primary' onClick={() => handleEditClick(user)}>
+                  <Button variant='contained' sx={{backgroundColor: "green", color: "white"}} onClick={() => handleEditClick(user)}>
                     {screenWidth <= 800 ? <EditIcon /> : "Edit Info"}
                   </Button>
                   <Button 

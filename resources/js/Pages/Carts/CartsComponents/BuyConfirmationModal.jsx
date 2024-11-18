@@ -21,7 +21,7 @@ const style = {
   border: 'none', // Remove border
 };
 
-export default function BuyConfirmationModal({ open, onClose, onConfirm }) {
+export default function BuyConfirmationModal({ open, onClose, onConfirm, onConfirmEWallet }) {
   return (
     <Modal
       open={open}
@@ -29,14 +29,16 @@ export default function BuyConfirmationModal({ open, onClose, onConfirm }) {
       aria-labelledby="delete-confirmation-title"
       aria-describedby="delete-confirmation-description"
     >
-      <Box sx={style
-          }>
+      <Box sx={style}>
         <h2 id="delete-confirmation-title" style={{fontSize: "20px", marginBottom: "5px"}}><b>Confirm Order</b></h2>
         <p id="delete-confirmation-description">
-          Are you sure you want to buy this item from the cart?
+          Are you sure you want to buy this item from the cart? Select a Payment method below.
         </p><br/>
-        <Button variant='contained' onClick={onConfirm} color="error" sx={{ marginRight: '5px', backgroundColor: blue[800] }}>Confirm</Button>
-        <Button variant='contained' onClick={onClose}  sx={{ backgroundColor: blueGrey[500] }}>Cancel</Button>
+          <div className='modalButtonsBuying'>
+            <Button variant='contained' onClick={onConfirm} sx={{ backgroundColor: blue[800], marginBottom: "4px" }}>Balance</Button>
+            <Button variant='contained' onClick={onConfirmEWallet} sx={{ backgroundColor: blue[800], marginBottom: "4px" }}>E-Wallet</Button>
+            <Button variant='contained' onClick={onClose}  sx={{ backgroundColor: blueGrey[500] }}>Cancel</Button>
+          </div>
       </Box>
     </Modal>
   );

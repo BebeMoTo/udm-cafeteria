@@ -86,7 +86,7 @@ function StoreItemInfo({ item, open, onClose, additional_fee }) {
         item_id: item.id,
         store_id: item.store_id,
         quantity: itemQuantity,
-        total_price: itemQuantity * item.price
+        total_price: ((itemQuantity * item.price) + ((itemQuantity * item.price) * (additional_fee * .01))).toFixed(2)
       });
 
       setSnackbarMessage('Order placed successfully!');
@@ -114,6 +114,45 @@ function StoreItemInfo({ item, open, onClose, additional_fee }) {
       setModalOpen(false);
     }
   };
+
+
+  const handleConfirmEWallet = async () => {
+    console.log(item);
+    if (item) {
+        try {
+            // Send the order data to the backend
+            const response = await axios.post('/orders/paymongo', {
+                user_id: auth.user.id,
+                item_id: item.id,
+                item_name: item.name,
+                store_id: item.store_id,
+                quantity: itemQuantity,
+                total_price: ((itemQuantity * item.price) + ((itemQuantity * item.price) * (additional_fee * .01))).toFixed(2) * 100,
+            });
+
+            // Redirect the user to the PayMongo checkout page
+            if (response.data && response.data.checkout_url) {
+                window.location.href = response.data.checkout_url;
+            }
+
+            
+        } catch (error) {
+            console.error('Error initiating PayMongo payment:', error);
+
+            // Display error message
+            if (error.response && error.response.data.message) {
+                setSnackbarMessage(error.response.data.message);
+            } else {
+                setSnackbarMessage('Failed to initiate payment. Please try again.');
+            }
+            setOpenSnackbar(true);
+        }
+    }
+};
+
+
+
+
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
@@ -194,6 +233,7 @@ function StoreItemInfo({ item, open, onClose, additional_fee }) {
         open={isModalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleConfirmBuy}
+        onConfirmEWallet={handleConfirmEWallet}
       />
     </>
   );

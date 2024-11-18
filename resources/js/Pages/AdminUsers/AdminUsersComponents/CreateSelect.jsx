@@ -22,12 +22,12 @@ export default function CreateSelect({createFunction}) {
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth >
-        <InputLabel id="demo-simple-select-label">Create</InputLabel>
+        <InputLabel sx={{color: "white"}} id="demo-simple-select-label">Create</InputLabel>
         <Select
           value={create}
           label="Create"
           onChange={handleChange}
-          sx={{maxWidth: "200px"}}
+          sx={{maxWidth: "200px", color: "white", border: "1px solid grey"}}
         >
           <MenuItem value={"Seller"}>Seller</MenuItem>
           <MenuItem value={"Admin"}>Admin</MenuItem>

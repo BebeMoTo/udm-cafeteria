@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 
 export default function SellerOrdersCardPending({order, children}) {
   return (
-    <Card sx={{ display: 'flex', width: '95%', height: '170px', margin: "auto", marginTop: "8px" }}>
+    <Card sx={{ display: 'flex', width: '95%', height: '180px', margin: "auto", marginTop: "8px" }}>
       {/* Left side with image */}
       <CardMedia
         component="img"

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Item;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -29,7 +31,7 @@ class OrderController extends Controller
                     }
                 ])
                         ->where('user_id', $userId)
-                        ->get();
+                        ->get()->toArray();
 
             // Pass the data to the Inertia view
             return Inertia::render('Orders/Index', [
@@ -119,7 +121,162 @@ class OrderController extends Controller
             'order' => $order,
         ], 201);
     }
+
+    public function paymongo(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'item_id' => 'required|exists:items,id',
+            'store_id' => 'required|exists:stores,id',
+            'quantity' => 'required|integer|min:1',
+            'total_price' => 'required|numeric|min:2000', // Minimum PayMongo amount
+            'item_name' => 'required|string',
+        ]);
     
+        // Call PayMongo API to create a checkout session
+        $response = Http::withBasicAuth(config('paymongo.secret_key'), '')
+            ->post('https://api.paymongo.com/v1/checkout_sessions', [
+                'data' => [
+                    'attributes' => [
+                        'amount' => $validated['total_price'], // In centavos
+                        'currency' => 'PHP',
+                        'description' => 'Purchase from Store',
+                        'line_items' => [
+                            [
+                                'name' => 'Order for: ' . $validated['item_name'],
+                                'amount' => $validated['total_price'], // In centavos
+                                'currency' => 'PHP',
+                                'quantity' => 1,
+                            ],
+                        ],
+                        'payment_method_types' => ['card', 'gcash', 'paymaya'],
+                        'success_url' => route('carts.index'),
+                        'cancel_url' => route('carts.index'),
+                    ],
+                ],
+            ]);
+    
+        if ($response->failed()) {
+            return response()->json(['message' => 'Failed to create PayMongo checkout session.'], 500);
+        }
+        else{
+                    // Reduce the item's quantity
+        $item = Item::find($validated['item_id']); // Retrieve the item by ID
+        if ($item->quantity !== null) { // Check if the item has a quantity field
+            if ($item->quantity < $validated['quantity']) {
+                return response()->json(['message' => 'Not enough stock available for the item.'], 400);
+            }
+            $item->quantity -= $validated['quantity']; // Deduct the ordered quantity
+            $item->save(); // Save the updated item
+        }
+    
+        $order = Order::create([
+            'user_id' => $validated['user_id'],
+            'item_id' => $validated['item_id'],
+            'store_id' => $validated['store_id'],
+            'quantity' => $validated['quantity'],
+            'total_price' => $validated['total_price'] / 100, // Convert centavos to pesos
+            'status' => 'Accepted', // Payment not yet completed
+            'created_at' => now(),
+            'accepted_time' => now(),
+            'pending_time' => now(),
+        ]);
+    
+        $checkoutUrl = $response->json('data.attributes.checkout_url');
+    
+        return response()->json([
+            'message' => 'Checkout session created successfully.',
+            'checkout_url' => $checkoutUrl,
+        ]);
+        }
+    }
+    
+
+    public function generalSuccess(Request $request)
+{
+    // Redirect to the orders page with a success message
+    return redirect('/orders')->with('message', 'Payment successful! Please check your orders for details.');
+}
+
+public function generalCancel(Request $request)
+{
+    // Redirect to the orders page with a cancellation message
+    return redirect('/orders')->with('message', 'Payment cancelled.');
+}
+
+
+    
+    public function handleWebhook(Request $request)
+    {
+        // Validate the PayMongo webhook signature
+        $signature = $request->header('Paymongo-Signature');
+        if (!$this->validateSignature($request->getContent(), $signature)) {
+            return response()->json(['message' => 'Invalid signature.'], 400);
+        }
+
+        $payload = $request->json();
+
+        if ($payload['data']['type'] === 'event' && $payload['data']['attributes']['type'] === 'checkout.session.completed') {
+            $attributes = $payload['data']['attributes'];
+
+            // Extract data
+            $amount = $attributes['data']['attributes']['amount'];
+            $currency = $attributes['data']['attributes']['currency'];
+            $lineItems = $attributes['data']['attributes']['line_items'];
+            $userId = $lineItems[0]['metadata']['user_id'];
+            $itemId = $lineItems[0]['metadata']['item_id'];
+            $storeId = $lineItems[0]['metadata']['store_id'];
+            $quantity = $lineItems[0]['metadata']['quantity'];
+
+            // Save order to the database
+            $order = Order::create([
+                'user_id' => $userId,
+                'item_id' => $itemId,
+                'store_id' => $storeId,
+                'quantity' => $quantity,
+                'total_price' => $amount / 100, // Convert centavos to pesos
+                'status' => 'Accepted', // Payment confirmed
+                'accepted_time' => now(),
+            ]);
+
+            return response()->json(['message' => 'Order saved successfully.'], 200);
+        }
+
+        return response()->json(['message' => 'Unhandled event type.'], 400);
+    }
+
+
+
+    private function validateSignature($payload, $signature)
+    {
+        $secret = config('paymongo.secret_key');
+        $computedSignature = hash_hmac('sha256', $payload, $secret);
+
+        return hash_equals($computedSignature, $signature);
+    }
+
+
+
+    public function success(Order $order)
+    {
+        $order->update(['status' => 'Accepted', 'accepted_time' => now()]);
+
+        return redirect('/orders')->with('message', 'Payment successful! Order confirmed.');
+    }
+
+    public function cancelPayment(Order $order)
+    {
+        $order->update(['status' => 'Cancelled', 'cancelled_time' => now()]);
+    
+        return redirect('/orders')->with('message', 'Payment cancelled.');
+    }
+    
+
+
+
+
+
+
 
     /**
      * Display the specified resource.
@@ -197,4 +354,52 @@ class OrderController extends Controller
             return response()->json(['error' => 'Unable to cancel order.'], 500);
         }
     }
+
+    //Accept
+    public function accept($id)
+    {
+        try {
+            // Find the order by ID
+            $order = Order::findOrFail($id);
+    
+            // Check if the order is still pending
+            if ($order->status !== 'Pending') {
+                return response()->json(['message' => 'Only pending orders can be accepted.'], 400);
+            }
+    
+            $user = $order->user; // Assuming you have a belongsTo relationship between Order and User
+            $item = $order->item; // Assuming you have a belongsTo relationship between Order and Item
+            $store = $order->store;
+    
+            // Log the acceptance event
+            Log::info('Accepting Order ID: ' . $order->id . ' for User ID: ' . $user->id);
+            $user->expense -= $order->total_price;
+            $user->save();
+
+            $store->balance += $order->total_price;
+            $store->save();
+            // Reduce the item's quantity
+            if ($item->quantity !== null) { // Ensure the item has a quantity field
+                if ($item->quantity < $order->quantity) {
+                    return response()->json(['message' => 'Not enough stock available for the item.'], 400);
+                }
+    
+                $item->quantity -= $order->quantity;
+                $item->save();
+            }
+    
+            // Update the order status to accepted
+            $order->status = 'Accepted';
+            $order->accepted_time = now(); // Set the current time for the accepted_time field
+            $order->save();
+    
+            // Return success response
+            return response()->json(['message' => 'Order has been accepted successfully.']);
+        } catch (\Exception $e) {
+            Log::error('Error accepting order: ' . $e->getMessage());
+            return response()->json(['error' => 'Unable to accept order.'], 500);
+        }
+    }
+    
+
 }

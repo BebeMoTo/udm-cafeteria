@@ -50,18 +50,18 @@ export default function CreateAdminForm({addedSnackbar, addedSnackbarMessage}) {
 
 
   return (
-    <Box sx={{ minWidth: 120, marginTop: "30px" }}>
+    <Box sx={{ minWidth: 120, marginTop: "30px", maxWidth: "600px", marginX: "auto" }}>
       <FormControl fullWidth onSubmit={handleSubmit} id='addAdminForm'>
-        <Typography sx={{marginTop:"8px"}}>Name: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Name: </Typography>
         <TextInput value={name} onChange={(e) => setName(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Email: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Email: </Typography>
         <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Password: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Password: </Typography>
         <TextInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <Typography sx={{marginTop:"8px"}}>Sex: </Typography>
+        <Typography sx={{marginTop:"8px", color: "white"}}>Sex: </Typography>
         <select
         style={{border: "1px solid lightgrey", borderRadius: "5px"}}
             id="sex"
@@ -76,7 +76,7 @@ export default function CreateAdminForm({addedSnackbar, addedSnackbarMessage}) {
             <option value="Female">Female</option>
         </select>
 
-        <Button onClick={handleSubmit} variant='contained' sx={{marginTop: "2rem"}}>Submit</Button>
+        <Button onClick={handleSubmit} variant='contained' sx={{width: "100%", maxWidth: "300px", margin: "auto", marginTop: "2rem"}}>Submit</Button>
       </FormControl>
     </Box>
   );

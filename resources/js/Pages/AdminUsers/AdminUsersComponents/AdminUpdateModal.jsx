@@ -71,8 +71,8 @@ const AdminUpdateModal = ({ open, user, onClose, onSubmit }) => {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button variant='contained' onClick={onClose} sx={{ backgroundColor: blueGrey[800] }}>Cancel</Button>
-        <Button variant='contained' onClick={handleSubmit} color="primary">Save</Button>
+        <Button variant='contained' onClick={onClose} sx={{ backgroundColor: blueGrey[800], color: "white" }}>Cancel</Button>
+        <Button variant='contained' onClick={handleSubmit} sx={{backgroundColor: "green", color:"white"}}>Save</Button>
       </DialogActions>
     </Dialog>
   );
