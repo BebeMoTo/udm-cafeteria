@@ -13,7 +13,7 @@ import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
 import { green, grey } from '@mui/material/colors';
 
-export default function StoreItemLayout({ name, price, image, state, type, className }) {
+export default function TopSellingItemLayout({ name, price, image, state, type, className }) {
     const getItemTypeLabel = (type) => {
         switch (type) {
             case "Meal":
@@ -41,7 +41,7 @@ export default function StoreItemLayout({ name, price, image, state, type, class
     };
 
     return (
-        <Card className={`store-item-card ${className}`} sx={{ maxWidth: '100%', position: 'relative' }}>
+        <Card className={`store-item-card ${className}`} sx={{ width: '200px', position: 'relative' }}>
             <CardActionArea>
                 <CardMedia
                     component="img"
@@ -67,24 +67,7 @@ export default function StoreItemLayout({ name, price, image, state, type, class
             <Typography variant='button' sx={{color: green[800]}}>Available</Typography> :
             <Typography variant='button' sx={{color: grey[800]}}>Unavailable</Typography>}
             </CardActions>
-            {/*state === 1 ?
-                <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button variant='contained' size="small" sx={{ backgroundColor: green[800] }}>
-                        <AddShoppingCartIcon />
-                    </Button>
-                    <Button variant='contained' size="small" sx={{ backgroundColor: green[800] }}>
-                        Buy
-                    </Button>
-                </CardActions> :
-                
-                <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button disabled variant='contained' size="small" sx={{ backgroundColor: green[800] }}>
-                        <AddShoppingCartIcon />
-                    </Button>
-                    <Button disabled variant='contained' size="small" sx={{ backgroundColor: green[800] }}>
-                        Buy
-                    </Button>
-                </CardActions>*/}
+
         </Card>
     );
 }

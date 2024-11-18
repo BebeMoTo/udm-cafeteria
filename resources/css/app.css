@@ -64,3 +64,13 @@ input[type="number"] {
 .background-food{
   background-image: url("images/background.jpg");
 }
+
+.topSellingContainer{
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+  overflow-x: auto;
+}
+.topSellingContainerSlide{
+  display: flex;
+}

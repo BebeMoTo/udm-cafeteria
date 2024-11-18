@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
-const TopSelling = ({topSelling, chapterTitle}) => {
+const TopSellingFavorite = ({topFavorite, chapterTitle}) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
 
@@ -34,7 +34,7 @@ const TopSelling = ({topSelling, chapterTitle}) => {
 
   return (
     <div className='topSellingContainer'>
-      <h2 style={{fontSize: "20px"}}>{chapterTitle}</h2> 
+      <h2 style={{fontSize: "20px"}}>{chapterTitle}</h2>
       <Grid container spacing={2} mt={0}>
       <Box
         sx={{
@@ -48,7 +48,7 @@ const TopSelling = ({topSelling, chapterTitle}) => {
               },
         }}
         >
-        {topSelling && topSelling.map((item) => (
+        {topFavorite && topFavorite.map((item) => (
             <Grid
             key={item.item_id}
             item
@@ -84,4 +84,4 @@ const TopSelling = ({topSelling, chapterTitle}) => {
   );
 };
 
-export default TopSelling;
+export default TopSellingFavorite;

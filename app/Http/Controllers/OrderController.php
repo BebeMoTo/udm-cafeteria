@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Item;
 use Inertia\Inertia;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -401,5 +403,78 @@ public function generalCancel(Request $request)
         }
     }
     
+    //for top 5 of the day
+
+    public function getTopSelling(Request $request)
+    {
+        $today = Carbon::today();
+        $userId = $request->user()->id; // Get the authenticated user's ID
+
+        /*----------------------------------------------------------------------------------------------*/
+        //Top sales of the day
+        $topSellingItems = Order::select('item_id', DB::raw('SUM(quantity) as total_quantity'))
+            ->whereDate('created_at', $today) // Filter orders created today
+            ->groupBy('item_id') // Group by item
+            ->orderByDesc('total_quantity') // Order by most sold
+            ->with('item.store') // Eager load the item details
+            ->take(5) // Limit to top 5
+            ->get();
+
+        /*----------------------------------------------------------------------------------------------*/
+        //Top items user orders
+        $userTopItems = Order::select('item_id', DB::raw('SUM(quantity) as total_quantity'))
+            ->where('user_id', $userId) // Filter by the authenticated user
+            ->groupBy('item_id') // Group by item
+            ->orderByDesc('total_quantity') // Order by most ordered
+            ->with('item.store') // Eager load the item and store details
+            ->take(10) // Limit to top 10
+            ->get();
+
+        /*----------------------------------------------------------------------------------------------*/
+        // Determine most ordered types
+        $mostOrderedTypes = Order::join('items', 'orders.item_id', '=', 'items.id')
+            ->where('orders.user_id', $userId)
+            ->select('items.type', DB::raw('COUNT(*) as order_count'))
+            ->groupBy('items.type')
+            ->orderByDesc('order_count')
+            ->pluck('order_count', 'type')
+            ->toArray();
+
+        $totalOrders = array_sum($mostOrderedTypes); // Total number of orders across all types
+
+        // Fetch random recommendations from the top types proportionally
+        $orderedItemIds = Order::where('user_id', $userId)->pluck('item_id')->toArray(); // Items the user has already ordered
+
+        $recommendedItems = collect();
+
+        foreach ($mostOrderedTypes as $type => $count) {
+            // Calculate the proportion of items to fetch for this type
+            $typeProportion = round(($count / $totalOrders) * 20); // Proportion of the 20 recommendations
+            $typeProportion = max($typeProportion, 1); // Ensure at least 1 item per type if it has orders
+
+            $randomItems = Item::where('type', $type)
+                ->whereNotIn('id', $orderedItemIds) // Exclude already ordered items
+                ->where('state', 'available') // Only available items
+                ->with('store')
+                ->inRandomOrder() // Randomize the results
+                ->take($typeProportion) // Limit to the proportional count
+                ->get();
+
+            $recommendedItems = $recommendedItems->merge($randomItems);
+        }
+        // Ensure the total recommendations do not exceed 20 items
+        $recommendedItems = $recommendedItems->take(20);
+
+
+            Log::info('Top selling items:', $topSellingItems->toArray());
+            Log::info('Top 10 items ordered by user:', $userTopItems->toArray());
+            Log::info('Recommended items to user:', $recommendedItems->toArray());
+
+        return inertia('Dashboard', [
+            'topSellingItems' => $topSellingItems,
+            'userTopItems' => $userTopItems, // Include user's top items in the response
+            'recommendedItems' => $recommendedItems,
+        ]);
+    }
 
 }

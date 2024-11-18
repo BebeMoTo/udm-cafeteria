@@ -56,6 +56,9 @@ Route::middleware(['web','auth'])->group(function () {
     Route::get('/orders/cancel', [OrderController::class, 'generalCancel'])->name('orders.cancel-general');
     Route::get('/setup-webhook', [OrderController::class, 'setupWebhook']);
 
+    //for dashboard
+    //not Seller
+    Route::get('/dashboard', [OrderController::class, 'getTopSelling'])->name('dashboard');
 
 
     //paymongo
