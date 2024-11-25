@@ -51,7 +51,7 @@ const Index = ({ auth, orders: initialOrders }) => {
     const cancelledOrders = useMemo(() => orders.filter(order => order.status === 'Cancelled').sort((a, b) => new Date(b.cancelled_time) - new Date(a.cancelled_time)), [orders]);
 
     const handleStatusChange = (newStatus) => setSelectedStatus(newStatus);
-
+console.log(acceptedOrders);
     // Function to handle the cancellation of an order
     const cancelOrder = (orderId) => {
         setLoadingOrderId(orderId); // Set loading state

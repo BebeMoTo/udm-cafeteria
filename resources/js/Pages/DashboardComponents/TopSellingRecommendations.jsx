@@ -50,7 +50,7 @@ const TopSellingRecommendations = ({topSelling, chapterTitle}) => {
         >
         {topSelling && topSelling.map((item) => (
             <Grid
-            key={item.item_id}
+            key={item.id}
             item
             xs={6}
             sm={3}

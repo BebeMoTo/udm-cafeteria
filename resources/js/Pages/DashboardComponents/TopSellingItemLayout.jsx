@@ -55,7 +55,7 @@ export default function TopSellingItemLayout({ name, price, image, state, type, 
                         {name}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                        {'\u20B1'} {price.toFixed(2)}
+                        {'\u20B1'} {price}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                         {showItemTypeIcon(type)} {getItemTypeLabel(type)}

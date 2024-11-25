@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import TopSelling from './DashboardComponents/TopSelling';
 import { useState } from 'react';
-import TopSellingRecommendaitons from './DashboardComponents/TopSellingRecommendations';
+import TopSellingRecommendations from './DashboardComponents/TopSellingRecommendations';
 import TopSellingFavorite from './DashboardComponents/TopSellingFavorite';
 import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
 import BarGraph from './DashboardComponents/BarGraph';
@@ -48,7 +48,7 @@ console.log('Props received:', props); // Debugging
 
                     {auth.user.type !== "Seller" ? userTop && <TopSellingFavorite topFavorite={userTop} chapterTitle={"Your Favorites"}/> : ""}
 
-                    {auth.user.type !== "Seller" ? recommended && <TopSellingRecommendaitons topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
+                    {auth.user.type !== "Seller" ? recommended && <TopSellingRecommendations topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
 
                     {auth.user.type !== "Seller" ? <DailyOrdersChart data={dailyOrders}/> : ""}
 

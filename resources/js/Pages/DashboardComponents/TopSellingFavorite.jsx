@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
 const TopSellingFavorite = ({topFavorite, chapterTitle}) => {
+    console.log(topFavorite);
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
 
@@ -48,14 +49,14 @@ const TopSellingFavorite = ({topFavorite, chapterTitle}) => {
               },
         }}
         >
-        {topFavorite && topFavorite.map((item) => (
+        {topFavorite.map((item) => (
             <Grid
             key={item.item_id}
             item
             xs={6}
             sm={3}
             md={2}
-            ref={el => (itemRefs.current[item.item.id] = el)}
+            ref={el => (itemRefs.current[item.id] = el)}
             className="item-container"
             onClick={() => handleItemSelect(item)}
             >

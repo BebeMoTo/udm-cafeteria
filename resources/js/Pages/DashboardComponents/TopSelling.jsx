@@ -6,7 +6,6 @@ import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
 const TopSelling = ({topSelling, chapterTitle}) => {
-    console.log(topSelling);
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
 
