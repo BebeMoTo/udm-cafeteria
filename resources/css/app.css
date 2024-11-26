@@ -75,13 +75,13 @@ input[type="number"] {
   display: flex;
 }
 .glassMo{
-  background: rgba( 41, 138, 54, 0.25 );
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  box-shadow:  6px 6px 12px #e0e0e2,
+  -6px -6px 12px #ffffff;
   backdrop-filter: blur( 4px );
   -webkit-backdrop-filter: blur( 4px );
   border-radius: 10px;
-  border: 1px solid rgba( 255, 255, 255, 0.18 );
-  width: 200px;
+  /*border: 1px solid rgba( 255, 255, 255, 0.18 );*/
+  width: 350px;
   height: 100px;
   margin-bottom: 24px;
   flex-shrink: 0;

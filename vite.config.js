@@ -14,8 +14,8 @@ export default defineConfig({
         host: true,  // This allows the Vite server to be accessed over the network
         port: 5173,  // The default Vite port
         hmr: {
-            host: '192.168.254.187',  // Replace with your local IP address
-            //host: '172.16.35.124',  // Replace with your local IP address
+            //host: '192.168.254.187',  // Replace with your local IP address
+            host: '172.16.34.93',  // Replace with your local IP address
             //host: '192.168.209.177',  // Replace with your local IP address
         },
     },

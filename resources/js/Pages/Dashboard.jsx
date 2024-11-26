@@ -37,10 +37,10 @@ console.log('Props received:', props); // Debugging
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto"}}>                
-                    {auth.user.type === "Seller" ? <MyCardSimple number={salesToday.toFixed(2)} title={"Sales Today"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple number={pendingOrders} title={"Pending Orders"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple number={acceptedOrders} title={"Accepted Orders"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesToday.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={''} number={pendingOrders} title={"Pending Orders"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={''} number={acceptedOrders} title={"Accepted Orders"}/> : ""}
                 </div>
 
 
