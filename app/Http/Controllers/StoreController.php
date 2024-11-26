@@ -13,12 +13,29 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $stores = Store::all(); // Fetch all stores
+        $user = auth()->user();
 
-        //return response()->json($stores);
-        return Inertia::render('Stores/Index', [
-            'stores' => $stores,
-        ]);
+        if ($user->type !== 'Seller') {
+            $stores = Store::all(); // Fetch all stores
+
+            //return response()->json($stores);
+            return Inertia::render('Stores/Index', [
+                'stores' => $stores,
+            ]);
+        }
+        else{
+            $store = Store::find($user->store_id);
+
+            if (!$store) {
+                // If the seller has no associated store
+                abort(404, 'Store not found');
+            }
+        
+            return Inertia::render('SellerStore/Index', [
+                'store' => $store->only(['id', 'name', 'description', 'stall_no', 'state', 'additional_fee', 'balance']),
+            ]);
+        }
+
     }
 
     // public function sellerOption()
@@ -94,8 +111,27 @@ class StoreController extends Controller
      */
     public function update(Request $request, Store $store)
     {
-        //
+        // Validate the incoming data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:stores,name,' . $store->id,
+            'description' => 'required|string|max:255',
+            'state' => 'required|numeric', // Assuming state is either 'open' or 'closed'
+            'additional_fee' => 'required|numeric|min:0',
+        ]);
+    
+        // Update the store with validated data
+        $store->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'state' => $validated['state'],
+            'additional_fee' => $validated['additional_fee'],
+        ]);
+    
+        // Redirect back with success message
+        //return redirect()->route('store.index')->with('success', 'Store information updated successfully.');
+        return response()->json(['message' => 'Store updated successfully!', 'store' => $store]);
     }
+    
 
     /**
      * Remove the specified resource from storage.

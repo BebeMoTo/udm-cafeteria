@@ -25,6 +25,7 @@ const BarGraph = ({ bestSellingItems }) => {
             vAxis: { title: 'Orders' },
             legend: 'none',
             bar: { groupWidth: '50%' },
+            colors: ['#5b9f68'],
         };
 
         const chart = new window.google.visualization.ColumnChart(

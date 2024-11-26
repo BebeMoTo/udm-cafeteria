@@ -17,8 +17,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import BadgeIcon from '@mui/icons-material/Badge';
 import EmailIcon from '@mui/icons-material/Email';
 import CheckIcon from '@mui/icons-material/Check';
+import AddCardIcon from '@mui/icons-material/AddCard';
 import UserDeleteModal from './AdminUsersComponents/UserDeleteModal';
 import AdminUpdateModal from './AdminUsersComponents/AdminUpdateModal';
+import AdminUpdateBalance from './AdminUsersComponents/AdminUpdateBalance';
 
 const theme = createTheme({
   palette: {
@@ -45,7 +47,57 @@ const Index = ({ auth, users: initialUsers }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // Snackbar severity (success/error)
   // Modal state for editing user
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [openEditBalance, setOpenEditBalance] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null); // Store the user data to be edited
+
+  const addBalance = (user) => {
+    return(
+      <Button variant='contained' sx={{backgroundColor: grey[800], color: "white"}} onClick={() => handleEditBalance(user)}>
+      {screenWidth <= 800 ? <AddCardIcon /> : "Add Balance"}
+      </Button>
+    )
+  }
+
+  const handleEditBalance = (user) => {
+    setUserToEdit(user); // Pass user data to the form
+    setOpenEditBalance(true); // Open the edit modal
+  };
+
+  const handleEditCloseBalance = () => {
+    setOpenEditBalance(false);
+    setUserToEdit(null); // Clear the selected user
+  };
+
+  const handleUpdateBalance = async (updatedUserData) => {
+    try {
+      // Send a PUT request to update the user in the database
+      const response = await axios.put(route('users.update', userToEdit.id), updatedUserData, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (response.status === 200) {
+        // Update the local users state with the new user data
+        setUsers(users.map((user) => (user.id === userToEdit.id ? response.data : user)));
+
+        // Close the edit modal and show success message
+        setSnackbarMessage('User updated successfully!');
+        setSnackbarSeverity('success'); 
+      } else {
+        setSnackbarMessage('Failed to update user. Please try again.');
+        setSnackbarSeverity('error');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      setSnackbarMessage('Error occurred during update.');
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
+      setOpenEditModal(false);
+    }
+  };
+
 
   // Open modal and set selected user for editing
   const handleEditClick = (user) => {
@@ -305,7 +357,8 @@ const Index = ({ auth, users: initialUsers }) => {
               <div key={user.id}>
                 <AdminUserCard user={user} sellerStore={user.store}>
                   <div style={{display: "flex", justifyContent: "flex-end"}}>
-                  <Button variant='contained' sx={{backgroundColor: "green", color: "white"}} onClick={() => handleEditClick(user)}>
+                  {user.type !== "Seller" ? addBalance(user) : ""}
+                  <Button variant='contained' sx={{backgroundColor: "green", color: "white", marginLeft: "8px" }} onClick={() => handleEditClick(user)}>
                     {screenWidth <= 800 ? <EditIcon /> : "Edit Info"}
                   </Button>
                   <Button 
@@ -350,6 +403,14 @@ const Index = ({ auth, users: initialUsers }) => {
           user={userToEdit}
           onClose={handleEditClose}
           onSubmit={handleUpdateUser}
+        />
+
+          {/* Edit User Balance */}
+          <AdminUpdateBalance
+          open={openEditBalance}
+          user={userToEdit}
+          onClose={handleEditCloseBalance}
+          onSubmit={handleUpdateBalance}
         />
 
         {/* Snackbar for Success/Failure Messages */}

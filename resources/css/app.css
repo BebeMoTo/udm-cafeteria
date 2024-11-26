@@ -50,6 +50,7 @@ input[type="number"] {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
+  min-height: 80svh;
 }
 
 .modalButtonsBuying{

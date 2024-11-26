@@ -18,6 +18,7 @@ const DailyOrdersChart = ({ data }) => {
         vAxis: { title: 'Total Amount' },
         curveType: 'function',
         legend: { position: 'bottom' },
+        colors: ['#5b9f68'],
       };
 
       const chart = new window.google.visualization.LineChart(

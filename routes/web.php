@@ -61,6 +61,11 @@ Route::middleware(['web','auth'])->group(function () {
     Route::get('/dashboard', [OrderController::class, 'getTopSelling'])->name('dashboard');
     //past 7 days expenses
     
+        //seller - update info of store
+        Route::put('/stores/{store}', [StoreController::class, 'update'])->name('stores.update');
+    //seller - get info of store
+    Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
+
 
 
     //paymongo
