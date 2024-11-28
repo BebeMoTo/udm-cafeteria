@@ -54,7 +54,7 @@ export default function StoreInfoUpdate({auth, store}) {
         <Typography sx={{marginTop:"16px", color: "white"}}>Additional Fee: </Typography>
         <TextInput value={additional_fee} onChange={(e) => setAdditional_fee(e.target.value)} />
 
-        <Typography sx={{marginTop:"16px", color: "white"}}>Sex: </Typography>
+        <Typography sx={{marginTop:"16px", color: "white"}}>State: </Typography>
         <select
         style={{border: "1px solid lightgrey", borderRadius: "5px"}}
             id="state"

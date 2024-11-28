@@ -16,7 +16,7 @@ const DailyOrdersChart = ({ data }) => {
         title: 'Daily Orders (Last 7 Days)',
         hAxis: { title: 'Date' },
         vAxis: { title: 'Total Amount' },
-        curveType: 'function',
+        curveType: 'none',
         legend: { position: 'bottom' },
         colors: ['#5b9f68'],
       };

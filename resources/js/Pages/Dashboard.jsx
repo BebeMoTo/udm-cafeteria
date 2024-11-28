@@ -6,9 +6,11 @@ import TopSellingRecommendations from './DashboardComponents/TopSellingRecommend
 import TopSellingFavorite from './DashboardComponents/TopSellingFavorite';
 import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
 import BarGraph from './DashboardComponents/BarGraph';
+import BarGraphOverallBestSelling from './DashboardComponents/BarGraphOverallBestSelling';
 import MyCardSimple from './DashboardComponents/MyCardSimple';
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders }) {
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallTopSellingItems,
+}) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
     const [recommended, setRecommended] = useState(recommendedItems);
@@ -36,6 +38,11 @@ console.log('Props received:', props); // Debugging
             <div className="py-5 ">
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
+                {/*Admin Graphs and Charts*/}
+                {auth.user.type === "Admin" ? <DailyOrdersChart data={overallDailyIncome}/> : ""}
+                {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}
+
+                {/*Seller Infos Card*/}
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto"}}>                
                     {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesToday.toFixed(2)} title={"Sales Today"}/> : ""}
                     {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}

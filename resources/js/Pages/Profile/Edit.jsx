@@ -5,13 +5,19 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import { Head } from '@inertiajs/react';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
+    console.log(auth.user.balance);
+    const checkIfSeller = () => {
+        if (auth.user.type !== "Seller") {
+            return 0;
+        }
+    }
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>}
             balance={auth.user.balance}
             type={auth.user.type}
-            storeBalance={auth.user.store.balance}
+            storeBalance={checkIfSeller()}
         >
             <Head title="Profile" />
 

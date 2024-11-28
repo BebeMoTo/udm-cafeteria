@@ -541,6 +541,42 @@ public function generalCancel(Request $request)
         ->count();
 
 
+
+        //for admin
+        $overallDailyIncome = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+            ];
+        });
+
+        // Top Selling Items Overall
+        $overallTopSellingItems = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select('item_id', 'store_id', DB::raw('COUNT(*) as order_count')) // Count orders per item and include store_id
+        ->groupBy('item_id', 'store_id') // Group by item and store
+        ->orderByDesc('order_count') // Order by most orders
+        ->with(['item', 'store']) // Eager load both item and store details
+        ->take(5) // Limit to 5
+        ->get()
+        ->map(function ($order) {
+            return [
+                'item_name' => $order->item->name ?? 'Unknown Item',
+                'store_name' => $order->store->name ?? 'Unknown Store',
+                'order_count' => $order->order_count,
+            ];
+        });
+    
+
+
+
+
             Log::info('Top selling items:', $topSellingItems->toArray());
             Log::info('Top 10 items ordered by user:', $userTopItems->toArray());
             Log::info('Recommended items to user:', $recommendedItems->toArray());
@@ -557,6 +593,10 @@ public function generalCancel(Request $request)
             'salesThisMonth' => $salesThisMonth,
             'pendingOrders' => $pendingOrders,
             'acceptedOrders' => $acceptedOrders,
+
+            //admin
+            'overallDailyIncome' => $overallDailyIncome,
+            'overallTopSellingItems' => $overallTopSellingItems,
         ]);
     }
 
