@@ -38,13 +38,14 @@ const TopSellingRecommendations = ({topSelling, chapterTitle}) => {
       <Grid container spacing={2} mt={0}>
       <Box
         sx={{
+            width: "100%",
             display: 'flex',
             overflowX: 'auto', // Enable horizontal scrolling
             whiteSpace: 'nowrap', // Prevent items from wrapping
             padding: '16px', // Optional: Add padding for better visuals
             gap: {
                 xs: '50px', // For small devices (phones)
-                sm: '25px', // For medium devices and up
+                sm: '10px', // For medium devices and up
               },
         }}
         >

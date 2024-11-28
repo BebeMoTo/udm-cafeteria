@@ -8,20 +8,50 @@ import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
 import BarGraph from './DashboardComponents/BarGraph';
 import BarGraphOverallBestSelling from './DashboardComponents/BarGraphOverallBestSelling';
 import MyCardSimple from './DashboardComponents/MyCardSimple';
+import DailyOrdersChartIndividual from './DashboardComponents/DailyOrdersChartIndividual';
+import DailyOrdersChartOverall from './DashboardComponents/DailyOrdersChartOverall';
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallTopSellingItems,
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallTopSellingItems, storeWiseDailyIncome,
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
     const [recommended, setRecommended] = useState(recommendedItems);
-function showStoreBalance() {
-    if (auth.user.type === "Seller") {
-        return auth.user.store.balance;
+
+    function showStoreBalance() {
+        if (auth.user.type === "Seller") {
+            return auth.user.store.balance;
+        }
+        else {
+            return
+        }
     }
-    else {
-        return
-    }
-}
+
+    const uniqueStores = Array.from(
+        new Map(
+            storeWiseDailyIncome.map((data) => [
+                data.store_id,
+                { store_id: data.store_id, store_name: data.store },
+            ])
+        ).values()
+    );
+
+    // State to store the selected store ID and its sales data
+    const [selectedStoreId, setSelectedStoreId] = useState(uniqueStores[0]?.store_id || null);
+    const [filteredSales, setFilteredSales] = useState(
+        storeWiseDailyIncome.filter((data) => data.store_id === selectedStoreId)
+    );
+
+    // Handle the change of the store selection
+    const handleStoreChange = (event) => {
+        const storeId = parseInt(event.target.value, 10);
+        setSelectedStoreId(storeId);
+
+        // Filter sales for the selected store
+        const sales = storeWiseDailyIncome.filter((data) => data.store_id === storeId);
+        setFilteredSales(sales);
+    };
+
+
 
 const { props } = usePage(); // Access Inertia props
 console.log('Props received:', props); // Debugging
@@ -38,9 +68,29 @@ console.log('Props received:', props); // Debugging
             <div className="py-5 ">
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
+
+
+                <div>
+            {/* Dropdown for selecting the store */}
+            <label htmlFor="store-select">Select Store:</label> &nbsp;
+            <select id="store-select" value={selectedStoreId} onChange={handleStoreChange}>
+                {uniqueStores.map((store) => (
+                    <option key={store.store_id} value={store.store_id}>
+                        {store.store_name}
+                    </option>
+                ))}
+            </select>
+
+            {/* Display the filtered sales data */}
+            <h3>Sales for {uniqueStores.find((store) => store.store_id === selectedStoreId)?.store_name}</h3>
+        </div>
+
+
                 {/*Admin Graphs and Charts*/}
-                {auth.user.type === "Admin" ? <DailyOrdersChart data={overallDailyIncome}/> : ""}
+                {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
+                {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}
+
 
                 {/*Seller Infos Card*/}
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto"}}>                

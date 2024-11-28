@@ -573,7 +573,27 @@ public function generalCancel(Request $request)
             ];
         });
     
-
+        $storeWiseDailyIncome = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(
+            'store_id', // Include the store ID
+            DB::raw('DATE(created_at) as date'), // Group by date
+            DB::raw('SUM(total_price) as total_amount') // Calculate total sales
+        )
+        ->groupBy('store_id', 'date') // Group by store and date
+        ->orderBy('store_id') // Order by store for easier organization
+        ->orderBy('date', 'asc') // Then order by date
+        ->with('store')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'store_id' => $order->store_id,
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+                'store' => $order->store->name,
+            ];
+        });
+    
 
 
 
@@ -597,6 +617,7 @@ public function generalCancel(Request $request)
             //admin
             'overallDailyIncome' => $overallDailyIncome,
             'overallTopSellingItems' => $overallTopSellingItems,
+            'storeWiseDailyIncome' => $storeWiseDailyIncome,
         ]);
     }
 
