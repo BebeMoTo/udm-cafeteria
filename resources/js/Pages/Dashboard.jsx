@@ -51,6 +51,23 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
         setFilteredSales(sales);
     };
 
+    const isAdmin = () => {
+        return(
+        <div>
+            <label htmlFor="store-select">Select Store:</label> &nbsp;
+            <select id="store-select" value={selectedStoreId} onChange={handleStoreChange}>
+                {uniqueStores.map((store) => (
+                    <option key={store.store_id} value={store.store_id}>
+                        {store.store_name}
+                    </option>
+                ))}
+            </select>
+
+            {/* Display the filtered sales data */}
+            <h3>Sales for {uniqueStores.find((store) => store.store_id === selectedStoreId)?.store_name}</h3>
+        </div>
+        );
+    }
 
 
 const { props } = usePage(); // Access Inertia props
@@ -68,25 +85,8 @@ console.log('Props received:', props); // Debugging
             <div className="py-5 ">
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
-
-
-                <div>
-            {/* Dropdown for selecting the store */}
-            <label htmlFor="store-select">Select Store:</label> &nbsp;
-            <select id="store-select" value={selectedStoreId} onChange={handleStoreChange}>
-                {uniqueStores.map((store) => (
-                    <option key={store.store_id} value={store.store_id}>
-                        {store.store_name}
-                    </option>
-                ))}
-            </select>
-
-            {/* Display the filtered sales data */}
-            <h3>Sales for {uniqueStores.find((store) => store.store_id === selectedStoreId)?.store_name}</h3>
-        </div>
-
-
                 {/*Admin Graphs and Charts*/}
+                {auth.user.type === "Admin" ? isAdmin() : ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}

@@ -31,7 +31,7 @@ const DailyOrdersChartIndividual = ({ data }) => {
   }, [data]); // Re-run useEffect when `data` changes
 
   return (
-    <div id="daily-orders-individual-chart" style={{ width: '100%', height: '400px', margin: 'auto' }} />
+    <div id="daily-orders-individual-chart" style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: "16px" }} />
   );
 };
 

@@ -9,11 +9,11 @@ import dayjs from 'dayjs';
 
 export default function SellerOrdersCardPending({order, children}) {
   return (
-    <Card sx={{ display: 'flex', width: '95%', height: '180px', margin: "auto", marginTop: "8px" }}>
+    <Card sx={{ display: 'flex', width: '95%', height: '200px', margin: "auto", marginTop: "8px" }}>
       {/* Left side with image */}
       <CardMedia
         component="img"
-        sx={{ width: '30%', height: '100%' }} 
+        sx={{ width: '30%', height: '100%', overflow: "hidden" }} 
         image={`storage/${order.item.image_path}`}
         alt={name}
       />
@@ -33,6 +33,9 @@ export default function SellerOrdersCardPending({order, children}) {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Quantity: {order.quantity}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+            Payment Method: {order.payment_method}
           </Typography>
           <Typography gutterBottom variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Buyer: {order.user.name}

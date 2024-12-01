@@ -28,7 +28,7 @@ const DailyOrdersChartOverall = ({ data }) => {
     }
   }, [data]);
 
-  return <div id="daily-orders-chart-overall" style={{ width: '100%', height: '400px', margin: "auto" }} />;
+  return <div id="daily-orders-chart-overall" style={{ width: '100%', height: '400px', margin: "auto", marginBottom: "16px" }} />;
 };
 
 export default DailyOrdersChartOverall;

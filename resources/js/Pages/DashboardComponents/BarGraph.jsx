@@ -34,7 +34,7 @@ const BarGraph = ({ bestSellingItems }) => {
         chart.draw(data, options);
     };
 
-    return <div id="bar-chart" style={{ width: '100%', height: '500px', margin: "auto", marginTop: "16px" }} />;
+    return <div id="bar-chart" style={{ width: '100%', height: '500px', margin: "auto", marginBottom: "16px" }} />;
 };
 
 export default BarGraph;

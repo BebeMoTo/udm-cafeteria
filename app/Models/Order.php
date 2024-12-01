@@ -20,6 +20,7 @@ class Order extends Model
         'accepted_time',  // Nullable
         'claimed_time',   // Nullable
         'cancelled_time', // Nullable
+        'payment_method', 
     ];
     
     public function user()

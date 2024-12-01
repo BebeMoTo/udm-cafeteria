@@ -116,6 +116,7 @@ class OrderController extends Controller
             'total_price' => $validated['total_price'],
             'status' => 'Pending', // Set the status to pending as seller confirmation is required
             'pending_time' => now(),
+            'payment_method' => "eBalance",
         ]);
     
         return response()->json([
@@ -182,6 +183,7 @@ class OrderController extends Controller
             'created_at' => now(),
             'accepted_time' => now(),
             'pending_time' => now(),
+            'payment_method' => "Paymongo",
         ]);
     
         $checkoutUrl = $response->json('data.attributes.checkout_url');
