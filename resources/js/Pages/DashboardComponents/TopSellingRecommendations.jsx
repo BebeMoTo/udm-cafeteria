@@ -19,7 +19,7 @@ const TopSellingRecommendations = ({topSelling, chapterTitle}) => {
             }, 2000);
         }
 
-        if (item.state === 0) {
+        if (item.state === 0 || item.store.state === 0) {
             return;
         } else {
             setSelectedItem(item);
@@ -66,6 +66,8 @@ const TopSellingRecommendations = ({topSelling, chapterTitle}) => {
                 image={item.image_path}
                 state={item.state}
                 type={item.type}
+                store={item.store.state}
+                quantity={item.quantity}
                 className="item-container"/>
           </Grid>
         ))}

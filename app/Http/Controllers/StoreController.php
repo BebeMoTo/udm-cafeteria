@@ -38,6 +38,16 @@ class StoreController extends Controller
 
     }
 
+
+    public function adminIndex()
+    {
+        $stores = Store::all(); // Fetch all stores
+
+        //return response()->json($stores);
+        return Inertia::render('AdminStores/Index', [
+            'stores' => $stores,
+        ]);
+    }
     
 
     // public function sellerOption()

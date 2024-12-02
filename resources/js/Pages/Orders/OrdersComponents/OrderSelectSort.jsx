@@ -38,6 +38,7 @@ export default function OrdersSelectSort({ selectedStatus, onStatusChange }) {
                 >
                     <MenuItem value="Pending">Pending</MenuItem>
                     <MenuItem value="Accepted">Accepted</MenuItem>
+                    <MenuItem value="Ready">Ready</MenuItem>
                     <MenuItem value="Claimed">Claimed</MenuItem>
                     <MenuItem value="Cancelled">Cancelled</MenuItem>
                 </Select>

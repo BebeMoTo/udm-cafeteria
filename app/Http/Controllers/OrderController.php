@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Item;
+use App\Models\Store;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -118,6 +119,11 @@ class OrderController extends Controller
             'pending_time' => now(),
             'payment_method' => "eBalance",
         ]);
+
+        $store = Store::find($validated['store_id']);
+        if ($store->state === 0) {
+            return response()->json(['message' => 'The store is currently closed.'], 500);
+        } 
     
         return response()->json([
             'message' => 'Order created successfully! Awaiting seller confirmation.',
@@ -135,6 +141,11 @@ class OrderController extends Controller
             'total_price' => 'required|numeric|min:2000', // Minimum PayMongo amount
             'item_name' => 'required|string',
         ]);
+
+        $store = Store::find($validated['store_id']);
+        if ($store->state === 0) {
+            return response()->json(['message' => 'The store is currently closed.'], 500);
+        } 
     
         // Call PayMongo API to create a checkout session
         $response = Http::withBasicAuth(config('paymongo.secret_key'), '')
@@ -163,15 +174,6 @@ class OrderController extends Controller
             return response()->json(['message' => 'Failed to create PayMongo checkout session.'], 500);
         }
         else{
-                    // Reduce the item's quantity
-        $item = Item::find($validated['item_id']); // Retrieve the item by ID
-        if ($item->quantity !== null) { // Check if the item has a quantity field
-            if ($item->quantity < $validated['quantity']) {
-                return response()->json(['message' => 'Not enough stock available for the item.'], 400);
-            }
-            $item->quantity -= $validated['quantity']; // Deduct the ordered quantity
-            $item->save(); // Save the updated item
-        }
     
         $order = Order::create([
             'user_id' => $validated['user_id'],
@@ -179,7 +181,7 @@ class OrderController extends Controller
             'store_id' => $validated['store_id'],
             'quantity' => $validated['quantity'],
             'total_price' => $validated['total_price'] / 100, // Convert centavos to pesos
-            'status' => 'Accepted', // Payment not yet completed
+            'status' => 'Pending', // Payment not yet completed
             'created_at' => now(),
             'accepted_time' => now(),
             'pending_time' => now(),
@@ -377,11 +379,13 @@ public function generalCancel(Request $request)
     
             // Log the acceptance event
             Log::info('Accepting Order ID: ' . $order->id . ' for User ID: ' . $user->id);
-            $user->expense -= $order->total_price;
-            $user->save();
-
-            $store->balance += $order->total_price;
-            $store->save();
+            if ($order->payment_method === "eBalance") {
+                $user->expense -= $order->total_price;
+                $user->save();
+    
+                $store->balance += $order->total_price;
+                $store->save();
+            }
             // Reduce the item's quantity
             if ($item->quantity !== null) { // Ensure the item has a quantity field
                 if ($item->quantity < $order->quantity) {
@@ -404,6 +408,66 @@ public function generalCancel(Request $request)
             return response()->json(['error' => 'Unable to accept order.'], 500);
         }
     }
+
+    //Ready
+    public function ready($id)
+    {
+        try {
+            // Find the order by ID
+            $order = Order::findOrFail($id);
+    
+            // Check if the order is still pending
+            if ($order->status !== 'Accepted') {
+                return response()->json(['message' => 'Only accepted orders can be ready.'], 400);
+            }
+    
+            $user = $order->user; // Assuming you have a belongsTo relationship between Order and User
+    
+            // Log the acceptance event
+            Log::info('Ready Order ID: ' . $order->id . ' for User ID: ' . $user->id);
+    
+            // Update the order status to accepted
+            $order->status = 'Ready';
+            $order->ready_time = now(); // Set the current time for the accepted_time field
+            $order->save();
+    
+            // Return success response
+            return response()->json(['message' => 'Order is now ready.']);
+        } catch (\Exception $e) {
+            Log::error('Error accepting order: ' . $e->getMessage());
+            return response()->json(['error' => 'Unable to make the order ready.'], 500);
+        }
+    }
+
+        //Claim
+        public function claim($id)
+        {
+            try {
+                // Find the order by ID
+                $order = Order::findOrFail($id);
+        
+                // Check if the order is still pending
+                if ($order->status !== 'Ready') {
+                    return response()->json(['message' => 'Only ready orders can be claimed.'], 400);
+                }
+        
+                $user = $order->user; // Assuming you have a belongsTo relationship between Order and User
+        
+                // Log the acceptance event
+                Log::info('Claim Order ID: ' . $order->id . ' for User ID: ' . $user->id);
+        
+                // Update the order status to accepted
+                $order->status = 'Claimed';
+                $order->claimed_time = now(); // Set the current time for the accepted_time field
+                $order->save();
+        
+                // Return success response
+                return response()->json(['message' => 'Order claimed successfully.']);
+            } catch (\Exception $e) {
+                Log::error('Error accepting order: ' . $e->getMessage());
+                return response()->json(['error' => 'Unable to claim the order.'], 500);
+            }
+        }
     
     //for top 5 of the day
 

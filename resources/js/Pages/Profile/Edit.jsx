@@ -10,6 +10,9 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
         if (auth.user.type !== "Seller") {
             return 0;
         }
+        else {
+            return auth.user.store.balance;
+        }
     }
     return (
         <AuthenticatedLayout

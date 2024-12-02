@@ -60,6 +60,12 @@ export default function Authenticated({ user, header, type, balance, children, s
                                         Items
                                     </NavLink>
                                 )}
+                                {type === 'Admin' && (
+                                    <NavLink href={route('admin.stores')} active={route().current('admin.stores')}>
+                                        <AdminPanelSettingsIcon/>
+                                        Stalls
+                                    </NavLink>
+                                )}
                                 {type === 'Seller' && (
                                     <NavLink href={route('items.index')} active={route().current('items.index')}>
                                         Inventory
@@ -179,6 +185,12 @@ export default function Authenticated({ user, header, type, balance, children, s
                             <ResponsiveNavLink href={route('items.index')} active={route().current('items.index')}>
                                 <AdminPanelSettingsIcon/>
                                 Items
+                            </ResponsiveNavLink>
+                        )}
+                        {type === 'Admin' && (
+                            <ResponsiveNavLink href={route('admin.stores')} active={route().current('admin.stores')}>
+                                <AdminPanelSettingsIcon/>
+                                Stalls
                             </ResponsiveNavLink>
                         )}
                         {type === 'Seller' && (

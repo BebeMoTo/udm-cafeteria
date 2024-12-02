@@ -20,7 +20,7 @@ const TopSellingFavorite = ({topFavorite, chapterTitle}) => {
             }, 2000);
         }
 
-        if (item.item.state === 0) {
+        if (item.item.state === 0  || item.item.store.state === 0) {
             return;
         } else {
             setSelectedItem(item);
@@ -67,6 +67,8 @@ const TopSellingFavorite = ({topFavorite, chapterTitle}) => {
                 image={item.item.image_path}
                 state={item.item.state}
                 type={item.item.type}
+                store={item.item.store.state}
+                quantity={item.item.quantity}
                 className="item-container"/>
           </Grid>
         ))}

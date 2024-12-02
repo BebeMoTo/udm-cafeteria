@@ -90,6 +90,7 @@ console.log('Props received:', props); // Debugging
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}
+                {auth.user.type === "Admin" ? <div><br /><br /></div> : ""}
 
 
                 {/*Seller Infos Card*/}

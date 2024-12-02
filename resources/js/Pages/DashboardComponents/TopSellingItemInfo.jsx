@@ -103,6 +103,11 @@ function TopSellingItemInfo({ item, open, onClose, additional_fee }) {
         setSnackbarMessage(errorMessage);
         setSnackbarKey(uuidv4()); // Generate a new key
         setOpenSnackbar(true);
+      } else if (error.response && error.response.status === 500) {
+        const errorMessage = error.response.data.message;
+        setSnackbarMessage(errorMessage);
+        setSnackbarKey(uuidv4()); // Generate a new key
+        setOpenSnackbar(true);
       } else {
         setSnackbarMessage('Failed to place order. Please try again.');
         setSnackbarKey(uuidv4()); // Generate a new key

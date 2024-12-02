@@ -156,6 +156,9 @@ const Index = ({auth, carts: initialCarts }) => {
                 if (error.response && error.response.status === 400) {
                     const errorMessage = error.response.data.message;
                     setSnackbarMessage(errorMessage);
+                } else if (error.response && error.response.status === 500) {
+                    const errorMessage = error.response.data.message;
+                    setSnackbarMessage('The store is currently closed.');
                 } else {
                     setSnackbarMessage('Placing order failed. Please try again.');
                 }

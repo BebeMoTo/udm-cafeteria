@@ -38,6 +38,10 @@ Route::middleware(['web','auth'])->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
     //accept the order
     Route::post('/orders/{id}/accept', [OrderController::class, 'accept']);
+    //accept the order
+    Route::post('/orders/{id}/ready', [OrderController::class, 'ready']);
+    //claim the order
+    Route::post('/orders/{id}/claim', [OrderController::class, 'claim']);
 
 
     Route::resource('users', UserController::class);
@@ -66,8 +70,9 @@ Route::middleware(['web','auth'])->group(function () {
     //seller - get info of store
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
-    
 
+    //admin get the stores to be edit
+    Route::get('/admin-stores', [StoreController::class, 'adminIndex'])->name('admin.stores');
 
 
     //paymongo
