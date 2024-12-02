@@ -66,7 +66,7 @@ function SellerItemInfo({ item, open, onClose, openEditModal }) {
             title={item.name}
           />
           <Typography variant='h5' sx={{ fontWeight: "bold" }}>
-            {item.name} {showItemTypeIcon(item.type)}
+            {item.name} {showItemTypeIcon(item.type)} <i style={{fontSize: "12px"}}>{auth.user.type === "Admin" ? `(${item.store.name})` : ""}</i>
           </Typography>
 
           <Typography variant="body1" color='text-secondary' gutterBottom>

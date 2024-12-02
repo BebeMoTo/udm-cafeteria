@@ -11,9 +11,9 @@ import SoupKitchenIcon from '@mui/icons-material/SoupKitchen';
 import KebabDiningIcon from '@mui/icons-material/KebabDining';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
-import { green, grey } from '@mui/material/colors';
+import { green, grey, orange } from '@mui/material/colors';
 
-export default function StoreItemLayout({ name, price, image, state, type, className }) {
+export default function StoreItemLayout({quantity, name, price, image, state, type, className }) {
     const getItemTypeLabel = (type) => {
         switch (type) {
             case "Meal":
@@ -26,6 +26,15 @@ export default function StoreItemLayout({ name, price, image, state, type, class
                 return "Others";
         }
     };
+
+    const itemAvailable = () => {
+        if (quantity > 0 && quantity <= 10) {
+            return (<Typography variant='button' sx={{color: orange[800]}}>Available</Typography>)
+        }
+        else {
+            return (<Typography variant='button' sx={{color: green[800]}}>Available</Typography>)
+        }
+    }
 
     const showItemTypeIcon = (type) => {
         switch (type) {
@@ -64,7 +73,7 @@ export default function StoreItemLayout({ name, price, image, state, type, class
             </CardActionArea>
             <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
             {state === 1 ?
-            <Typography variant='button' sx={{color: green[800]}}>Available</Typography> :
+            itemAvailable() :
             <Typography variant='button' sx={{color: grey[800]}}>Unavailable</Typography>}
             </CardActions>
             {/*state === 1 ?

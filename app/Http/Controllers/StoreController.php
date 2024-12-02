@@ -38,6 +38,8 @@ class StoreController extends Controller
 
     }
 
+    
+
     // public function sellerOption()
     // {
     //     $stores = Store::all(); // Fetch all stores

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Models\Store;
 
 class ItemController extends Controller
 {
@@ -16,13 +17,24 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $storeId = auth()->user()->store_id;
-        $items = Item::where('store_id', $storeId)->get()->toArray();
+        if (auth()->user()->type === "Admin") {
+            $items = Item::with('store')->get()->toArray();
+            $stores = Store::select('id', 'name')->distinct()->get()->toArray();
 
-        //return response()->json($stores);
-        return Inertia::render('SellerInventory/Index', [
-            'items' => $items,
-        ]);
+            return Inertia::render('SellerInventory/Index', [
+                'items' => $items,
+                'stores' => $stores,
+            ]);                     
+        }
+        else{
+            $storeId = auth()->user()->store_id;
+            $items = Item::where('store_id', $storeId)->get()->toArray();
+
+            //return response()->json($stores);
+            return Inertia::render('SellerInventory/Index', [
+                'items' => $items,
+            ]);
+        }
     }
 
     /**
@@ -62,16 +74,30 @@ class ItemController extends Controller
         }
     
         // Create the item
-        $item = Item::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'price' => $validated['price'],
-            'quantity' => $validated['quantity'],
-            'type' => $validated['type'],
-            'state' => $validated['state'],
-            'image_path' => $validated['image_path'],
-            'store_id' => auth()->user()->store_id,
-        ]);
+        if (auth()->user()->type === "Seller") {
+            $item = Item::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'],
+                'price' => $validated['price'],
+                'quantity' => $validated['quantity'],
+                'type' => $validated['type'],
+                'state' => $validated['state'],
+                'image_path' => $validated['image_path'],
+                'store_id' => auth()->user()->store_id,
+            ]);
+        }
+        else if (auth()->user()->type === "Admin") {
+            $item = Item::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'],
+                'price' => $validated['price'],
+                'quantity' => $validated['quantity'],
+                'type' => $validated['type'],
+                'state' => $validated['state'],
+                'image_path' => $validated['image_path'],
+                'store_id' => $validated['store_id'],
+            ]);
+        }
     
         return response()->json([
             'message' => 'Item added successfully!',
@@ -123,16 +149,27 @@ public function update(Request $request, Item $item)
         $item->image_path = '/' .$imagePath ; // Update the image path
     }
 
-    // Update other fields
-    $item->update([
-        'name' => $request->name,
-        'description' => $request->description,
-        'price' => $request->price,
-        'quantity' => $request->quantity,
-        'type' => $request->type,
-        'state' => $request->state,
-        'store_id' => auth()->user()->store_id,
-    ]);
+    if (auth()->user()->type === "Seller") {
+        $item->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'quantity' => $request->quantity,
+            'type' => $request->type,
+            'state' => $request->state,
+            'store_id' => auth()->user()->store_id,
+        ]);
+    }
+    else {
+        $item->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'quantity' => $request->quantity,
+            'type' => $request->type,
+            'state' => $request->state,
+        ]);
+    }
 
     // Return a success response
     return response()->json(['message' => 'Item updated successfully!', 'item' => $item]);

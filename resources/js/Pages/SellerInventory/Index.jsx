@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import React, { useState, useRef, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import SellerItemSort from './SellerComponents/SellerItemSort';
@@ -12,7 +12,10 @@ import SellerAddItem from './SellerComponents/SellerAddItem';
 import { Button } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
 
-export default function Index({ auth, items: initialItems }) {
+export default function Index({ auth, items: initialItems, stores }) {
+
+    const { props } = usePage(); // Access all the props provided by Inertia
+    console.log(props); // Logs all the props to the console
 
     const [items, setItems] = useState(initialItems);
     const [sortType, setSortType] = useState("");
@@ -81,14 +84,21 @@ export default function Index({ auth, items: initialItems }) {
         setOpenAddModal(false);
       };
 
-      
+      const checkIfSeller = () => {
+        if (auth.user.type !== "Seller") {
+            return 0;
+        }
+        else {
+            return auth.user.store.balance;
+        }
+    }
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Inventory</h2>}
             type={auth.user.type}
             balance={auth.user.balance}
-            storeBalance={auth.user.store.balance}
+            storeBalance={checkIfSeller()}
         >
             <Head title="Inventory" />
 
@@ -119,6 +129,7 @@ export default function Index({ auth, items: initialItems }) {
                                 onClick={() => handleItemSelect(item)}
                             >
                                 <StoreItemLayout
+                                    quantity={item.quantity}
                                     name={item.name}
                                     price={item.price}
                                     image={item.image_path}
@@ -151,6 +162,8 @@ export default function Index({ auth, items: initialItems }) {
             <SellerAddItem
                 open={openAddModal}
                 onClose={handleAddClose}
+                stores={stores}
+                authUser={auth}
             />
 
         </AuthenticatedLayout>

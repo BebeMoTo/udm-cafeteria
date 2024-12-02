@@ -3,7 +3,7 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, S
 import { blueGrey } from '@mui/material/colors';
 import axios from 'axios';
 
-const SellerAddItem = ({ open, item, onClose }) => {
+const SellerAddItem = ({authUser, open, item, onClose, stores }) => {
     const [image, setImage] = useState("");
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -28,7 +28,23 @@ const SellerAddItem = ({ open, item, onClose }) => {
           reader.readAsDataURL(file);
         }
       };
-
+      const isAdmin = () => {
+        return (
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="store-label">Store</InputLabel>
+            <Select
+              labelId="store-label"
+              name="store"
+              value={store_id} onChange={(e) => setStore_id(e.target.value)}
+              label="Store"
+            >
+              {stores.map(store => (
+                <MenuItem key={store.id} value={store.id}>{store.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )
+      }
 //handle submission
 const handleSubmit = async () => {
     
@@ -71,6 +87,8 @@ const handleSubmit = async () => {
             />
           </Button>
         </Box>
+
+        {authUser.user.type === "Admin" ? isAdmin() : ""}
 
         <TextField
           label="Name"
@@ -130,6 +148,7 @@ const handleSubmit = async () => {
             <MenuItem value={0}>Unavailable</MenuItem>
           </Select>
         </FormControl>
+
       </DialogContent>
 
       <DialogActions>
