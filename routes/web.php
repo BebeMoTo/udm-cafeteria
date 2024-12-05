@@ -73,7 +73,10 @@ Route::middleware(['web','auth'])->group(function () {
 
     //admin get the stores to be edit
     Route::get('/admin-stores', [StoreController::class, 'adminIndex'])->name('admin.stores');
-
+    //admin - get store and items
+    Route::get('/stores-physical', [StoreController::class, 'adminAdjustOrder'])->name('stores.physical');
+    //admin physical payment
+    Route::post('/orders/physical-payment', [OrderController::class, 'physicalPayment'])->name('orders.physicalPayment');
 
     //paymongo
     Route::get('/paymongo-test', function (PayMongoService $payMongoService) {

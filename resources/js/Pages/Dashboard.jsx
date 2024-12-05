@@ -9,9 +9,10 @@ import BarGraph from './DashboardComponents/BarGraph';
 import BarGraphOverallBestSelling from './DashboardComponents/BarGraphOverallBestSelling';
 import MyCardSimple from './DashboardComponents/MyCardSimple';
 import DailyOrdersChartIndividual from './DashboardComponents/DailyOrdersChartIndividual';
+import DailyOrdersChartIndividualMonth from './DashboardComponents/DailyOrdersChartIndividualMonth';
 import DailyOrdersChartOverall from './DashboardComponents/DailyOrdersChartOverall';
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallTopSellingItems, storeWiseDailyIncome,
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome,
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
@@ -34,11 +35,25 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
             ])
         ).values()
     );
+    const uniqueStoresMonth = Array.from(
+        new Map(
+            storeWiseMonthlyIncome.map((data) => [
+                data.store_id,
+                { store_id: data.store_id, store_name: data.store },
+            ])
+        ).values()
+    );
 
     // State to store the selected store ID and its sales data
     const [selectedStoreId, setSelectedStoreId] = useState(uniqueStores[0]?.store_id || null);
     const [filteredSales, setFilteredSales] = useState(
         storeWiseDailyIncome.filter((data) => data.store_id === selectedStoreId)
+    );
+
+    // State to store the selected store ID and its sales data
+    const [selectedStoreIdMonth, setSelectedStoreIdMonth] = useState(uniqueStoresMonth[0]?.store_id || null);
+    const [filteredSalesMonth, setFilteredSalesMonth] = useState(
+        storeWiseMonthlyIncome.filter((data) => data.store_id === selectedStoreIdMonth)
     );
 
     // Handle the change of the store selection
@@ -49,6 +64,16 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
         // Filter sales for the selected store
         const sales = storeWiseDailyIncome.filter((data) => data.store_id === storeId);
         setFilteredSales(sales);
+    };
+
+    // Handle the change of the store selection
+    const handleStoreChangeMonth = (event) => {
+        const storeIdMonth = parseInt(event.target.value, 10);
+        setSelectedStoreIdMonth(storeIdMonth);
+
+        // Filter sales for the selected store
+        const salesMonth = storeWiseMonthlyIncome.filter((data) => data.store_id === storeIdMonth);
+        setFilteredSalesMonth(salesMonth);
     };
 
     const isAdmin = () => {
@@ -65,6 +90,24 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
 
             {/* Display the filtered sales data */}
             <h3>Sales for {uniqueStores.find((store) => store.store_id === selectedStoreId)?.store_name}</h3>
+        </div>
+        );
+    }
+
+    const isAdminMonth = () => {
+        return(
+        <div>
+            <label htmlFor="store-select">Select Store:</label> &nbsp;
+            <select id="store-select" value={selectedStoreIdMonth} onChange={handleStoreChangeMonth}>
+                {uniqueStoresMonth.map((store) => (
+                    <option key={store.store_id} value={store.store_id}>
+                        {store.store_name}
+                    </option>
+                ))}
+            </select>
+
+            {/* Display the filtered sales data */}
+            <h3>Sales for {uniqueStoresMonth.find((store) => store.store_id === selectedStoreIdMonth)?.store_name}</h3>
         </div>
         );
     }
@@ -88,6 +131,8 @@ console.log('Props received:', props); // Debugging
                 {/*Admin Graphs and Charts*/}
                 {auth.user.type === "Admin" ? isAdmin() : ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
+                {auth.user.type === "Admin" ? isAdminMonth() : ""}
+                {auth.user.type === "Admin" ? <DailyOrdersChartIndividualMonth data={filteredSalesMonth} />: ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}
                 {auth.user.type === "Admin" ? <div><br /><br /></div> : ""}

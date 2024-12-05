@@ -131,6 +131,47 @@ class OrderController extends Controller
         ], 201);
     }
 
+
+
+    public function physicalPayment(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'user_id' => 'required',
+            'item_id' => 'required|exists:items,id',
+            'store_id' => 'required|exists:stores,id',
+            'quantity' => 'required|integer|min:1',
+            'total_price' => 'required|numeric|min:0',
+            'created_at' => 'required',
+        ]);
+    
+        // Create the order without deducting the item stock
+        $order = Order::create([
+            'user_id' => 0,
+            'item_id' => $validated['item_id'],
+            'store_id' => $validated['store_id'],
+            'quantity' => $validated['quantity'],
+            'total_price' => $validated['total_price'],
+            'status' => 'Claimed',
+            'pending_time' => $validated['created_at'],
+            'accepted_time' => $validated['created_at'],
+            'ready_time' => $validated['created_at'],
+            'claimed_time' => $validated['created_at'],
+            'created_at' => $validated['created_at'],
+            'payment_method' => "Physical Cash",
+        ]);
+
+        $store = Store::find($validated['store_id']);
+        if ($store->state === 0) {
+            return response()->json(['message' => 'The store is currently closed.'], 500);
+        } 
+    
+        return response()->json([
+            'message' => 'Order created successfully! Awaiting seller confirmation.',
+            'order' => $order,
+        ], 201);
+    }
+
     public function paymongo(Request $request)
     {
         $validated = $request->validate([
@@ -145,7 +186,7 @@ class OrderController extends Controller
         $store = Store::find($validated['store_id']);
         if ($store->state === 0) {
             return response()->json(['message' => 'The store is currently closed.'], 500);
-        } 
+        }
     
         // Call PayMongo API to create a checkout session
         $response = Http::withBasicAuth(config('paymongo.secret_key'), '')
@@ -536,7 +577,7 @@ public function generalCancel(Request $request)
         $dailyOrders = Order::where('user_id', $userId)
         ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
         ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
@@ -555,7 +596,7 @@ public function generalCancel(Request $request)
         $dailyIncome = Order::where('store_id', $storeId) // Filter by store ID
         ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
         ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
@@ -585,14 +626,14 @@ public function generalCancel(Request $request)
 
         // Total Sales Today
         $salesToday = Order::where('store_id', $storeId)
-        ->whereDate('created_at', Carbon::today())
+        ->whereDate('pending_time', Carbon::today())
         ->whereIn('status', ['Accepted', 'Claimed'])
         ->sum('total_price');
 
         // Total Sales This Month
         $salesThisMonth = Order::where('store_id', $storeId)
-        ->whereMonth('created_at', Carbon::now()->month)
-        ->whereYear('created_at', Carbon::now()->year)
+        ->whereMonth('pending_time', Carbon::now()->month)
+        ->whereYear('pending_time', Carbon::now()->year)
         ->whereIn('status', ['Accepted', 'Claimed'])
         ->sum('total_price');
 
@@ -609,9 +650,22 @@ public function generalCancel(Request $request)
 
 
         //for admin
-        $overallDailyIncome = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
-        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_price) as total_amount'))
+        $overallDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', "Ready", 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+            ];
+        });
+
+        $overallMonthlyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(30)) // Past 30 days including today
+        ->whereIn('status', ['Accepted','Ready', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
@@ -623,7 +677,7 @@ public function generalCancel(Request $request)
         });
 
         // Top Selling Items Overall
-        $overallTopSellingItems = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days
+        $overallTopSellingItems = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days
         ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
         ->select('item_id', 'store_id', DB::raw('COUNT(*) as order_count')) // Count orders per item and include store_id
         ->groupBy('item_id', 'store_id') // Group by item and store
@@ -639,11 +693,32 @@ public function generalCancel(Request $request)
             ];
         });
     
-        $storeWiseDailyIncome = Order::where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
-        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
+        $storeWiseDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted and Claimed orders
         ->select(
             'store_id', // Include the store ID
-            DB::raw('DATE(created_at) as date'), // Group by date
+            DB::raw('DATE(pending_time) as date'), // Group by date
+            DB::raw('SUM(total_price) as total_amount') // Calculate total sales
+        )
+        ->groupBy('store_id', 'date') // Group by store and date
+        ->orderBy('store_id') // Order by store for easier organization
+        ->orderBy('date', 'asc') // Then order by date
+        ->with('store')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'store_id' => $order->store_id,
+                'date' => $order->date,
+                'total_amount' => $order->total_amount,
+                'store' => $order->store->name,
+            ];
+        });
+
+        $storeWiseMonthlyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(30)) // Past 30 days including today
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted and Claimed orders
+        ->select(
+            'store_id', // Include the store ID
+            DB::raw('DATE(pending_time) as date'), // Group by date
             DB::raw('SUM(total_price) as total_amount') // Calculate total sales
         )
         ->groupBy('store_id', 'date') // Group by store and date
@@ -682,8 +757,11 @@ public function generalCancel(Request $request)
 
             //admin
             'overallDailyIncome' => $overallDailyIncome,
+            'overallMonthlyIncome' => $overallMonthlyIncome,
             'overallTopSellingItems' => $overallTopSellingItems,
             'storeWiseDailyIncome' => $storeWiseDailyIncome,
+            'storeWiseMonthlyIncome' => $storeWiseMonthlyIncome,
+
         ]);
     }
 

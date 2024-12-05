@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-//import StoreSnackBar from './StoreSnackBar';
-//import StoresItemAddModal from './StoresItemAddModal';
 import { usePage } from '@inertiajs/react';
 import { styled } from '@mui/material/styles';
 import { blueGrey, red } from '@mui/material/colors';
@@ -9,18 +7,20 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import { CardMedia } from '@mui/material';
+import { CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, IconButton } from '@mui/material';
 import SoupKitchenIcon from '@mui/icons-material/SoupKitchen';
 import KebabDiningIcon from '@mui/icons-material/KebabDining';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import BentoIcon from '@mui/icons-material/Bento';
+import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from 'prop-types';
 
-function SellerItemInfo({ item, open, onClose, openEditModal }) {
+function SellerItemInfo({ item, open, onClose, openEditModal, onItemDelete }) {
   const { auth } = usePage().props;
-  const [itemQuantity, setItemQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
-
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const showItemTypeIcon = (type) => {
     switch (type) {
@@ -32,24 +32,36 @@ function SellerItemInfo({ item, open, onClose, openEditModal }) {
   };
 
   const handleDeleteItem = async () => {
+    setLoading(true);
     try {
-      // Make the delete request to the server
       const response = await axios.delete(route('items.destroy', item.id), {
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-      
-      // You can do something with the response here (e.g., remove the item from the state)
-      console.log(response.data.message);
+
+      setSnackbarMessage(response.data.message || 'Item deleted successfully');
+      setSnackbarOpen(true);
+
+      // Notify the parent component about the deletion
+      onItemDelete(item.id);
       setTimeout(() => {
-        window.location.reload();
-      }, 500);
+        onClose(false);
+      }, 1000);
+
     } catch (error) {
-      console.error('Failed to delete item:', error.response ? error.response.data : error.message);
+      setSnackbarMessage(error.response?.data?.message || 'Failed to delete item');
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
     }
   };
-  
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
   return (
     <>
@@ -66,7 +78,7 @@ function SellerItemInfo({ item, open, onClose, openEditModal }) {
             title={item.name}
           />
           <Typography variant='h5' sx={{ fontWeight: "bold" }}>
-            {item.name} {showItemTypeIcon(item.type)} <i style={{fontSize: "12px"}}>{auth.user.type === "Admin" ? `(${item.store.name})` : ""}</i>
+            {item.name} {showItemTypeIcon(item.type)} <i style={{ fontSize: "12px" }}>{auth.user.type === "Admin" ? `(${item.store.name})` : ""}</i>
           </Typography>
 
           <Typography variant="body1" color='text-secondary' gutterBottom>
@@ -78,12 +90,11 @@ function SellerItemInfo({ item, open, onClose, openEditModal }) {
           <Typography variant="body2">Stock: {item.quantity}</Typography>
 
           <Box mt={2}>
-
             <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
               <Button
                 variant="contained"
                 sx={{ backgroundColor: red[800] }}
-                onClick={handleDeleteItem}
+                onClick={() => setDeleteDialogOpen(true)}
                 disabled={loading}
               >
                 Delete
@@ -102,6 +113,39 @@ function SellerItemInfo({ item, open, onClose, openEditModal }) {
         </Box>
       </SwipeableDrawer>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this item? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteItem} color="error" autoFocus disabled={loading}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for Success/Error Messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        action={
+          <IconButton size="small" color="inherit" onClick={handleSnackbarClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
     </>
   );
 }
@@ -110,6 +154,7 @@ SellerItemInfo.propTypes = {
   item: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  openEditModal: PropTypes.func.isRequired,
 };
 
 export default SellerItemInfo;

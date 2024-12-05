@@ -183,14 +183,30 @@ public function update(Request $request, Item $item)
     public function destroy(Item $item)
     {
         try {
-            // The $item is automatically injected by Laravel through route model binding
+            // Check if the item has associated orders
+            $hasActiveOrders = $item->orders()
+                ->whereIn('status', ['Pending', 'Accepted', 'Ready'])
+                ->exists();
+    
+            if ($hasActiveOrders) {
+                return response()->json([
+                    'message' => 'Cannot delete the item as it has active orders.',
+                ], 400);
+            }
+    
+            // Delete the item
             $item->delete();
     
-            // Return success response
-            return response()->json(['message' => 'Item deleted successfully'], 200);
+            return response()->json([
+                'message' => 'Item deleted successfully.',
+            ], 200);
         } catch (\Exception $e) {
-            // Return error response if something goes wrong
-            return response()->json(['message' => 'Error deleting item', 'error' => $e->getMessage()], 500);
+            // Handle any unexpected exceptions
+            return response()->json([
+                'message' => 'Error deleting item.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-    }    
+    }
+    
 }

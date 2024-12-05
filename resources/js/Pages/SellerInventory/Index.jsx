@@ -23,6 +23,12 @@ export default function Index({ auth, items: initialItems, stores }) {
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
 
+    //for deleting the item
+    const handleItemDelete = (deletedItemId) => {
+        // Remove the deleted item from the state
+        setItems(items.filter((item) => item.id !== deletedItemId));
+    };
+
     // Initial sort and filter on mount
     useEffect(() => {
         const sortedItems = items.sort((a, b) => b.state - a.state); // Sort items by state, with 1 first
@@ -149,6 +155,7 @@ export default function Index({ auth, items: initialItems, stores }) {
                             open={Boolean(selectedItem)}
                             onClose={handleCloseDrawer}
                             openEditModal={handleEditClick}
+                            onItemDelete={handleItemDelete} 
                         />
                 )}
             </div>

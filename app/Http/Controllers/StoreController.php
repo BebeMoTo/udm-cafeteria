@@ -49,6 +49,16 @@ class StoreController extends Controller
         ]);
     }
     
+    public function adminAdjustOrder()
+    {
+        // Fetch all stores with their related items
+        $stores = Store::with('items')->get()->toArray();
+    
+        // Return the stores and their items to the Inertia view
+        return Inertia::render('AdminPhysical/Index', [
+            'stores' => $stores,
+        ]);
+    }
 
     // public function sellerOption()
     // {
@@ -150,6 +160,31 @@ class StoreController extends Controller
      */
     public function destroy(Store $store)
     {
-        //
+        // Check if there are orders with "Pending", "Accepted", or "Ready" statuses
+        $hasActiveOrders = $store->orders()
+            ->whereIn('status', ['Pending', 'Accepted', 'Ready'])
+            ->exists();
+    
+        if ($hasActiveOrders) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete the store as it has active orders.',
+            ], 400);
+        }
+    
+        // Use relationships to cascade delete related data manually
+        $store->items()->delete(); // Delete related items
+        $store->carts()->delete(); // Delete related carts
+        $store->orders()->delete(); // Delete related orders
+        $store->transactions()->delete(); // Delete related transactions
+    
+        // Finally, delete the store
+        $store->delete();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Store and its related data deleted successfully.',
+        ]);
     }
+    
 }
