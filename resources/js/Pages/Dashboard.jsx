@@ -129,11 +129,11 @@ console.log('Props received:', props); // Debugging
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
                 {/*Admin Graphs and Charts*/}
+                {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? isAdmin() : ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
                 {auth.user.type === "Admin" ? isAdminMonth() : ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividualMonth data={filteredSalesMonth} />: ""}
-                {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
                 {auth.user.type === "Admin" ? <BarGraphOverallBestSelling bestSellingItems={overallTopSellingItems} />: ""}
                 {auth.user.type === "Admin" ? <div><br /><br /></div> : ""}
 
@@ -147,13 +147,11 @@ console.log('Props received:', props); // Debugging
                 </div>
 
 
-                    {auth.user.type !== "Seller" ? <TopSelling topSelling={topSelling} chapterTitle={"Top Selling Items Today"}/> : ""}
+                    {auth.user.type == "User" ? <TopSelling topSelling={topSelling} chapterTitle={"Top Selling Items Today"}/> : ""}
 
-                    {auth.user.type !== "Seller" ? userTop && <TopSellingFavorite topFavorite={userTop} chapterTitle={"Your Favorites"}/> : ""}
+                    {auth.user.type == "User" ? userTop && <TopSellingFavorite topFavorite={userTop} chapterTitle={"Your Favorites"}/> : ""}
 
-                    {auth.user.type !== "Seller" ? recommended && <TopSellingRecommendations topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
-
-                    {auth.user.type !== "Seller" ? <DailyOrdersChart data={dailyOrders}/> : ""}
+                    {auth.user.type == "User" ? recommended && <TopSellingRecommendations topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
 
                     {auth.user.type === "Seller" ? <DailyOrdersChart data={dailyIncome}/> : ""}
 

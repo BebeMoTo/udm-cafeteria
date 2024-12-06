@@ -13,6 +13,7 @@ const Index = ({auth, orders: initialOrders}) => {
     const handleStatusChange = (newStatus) => setSelectedStatus(newStatus);
     const [loadingOrderId, setLoadingOrderId] = useState(null); // Track loading state for cancellation
 
+    console.log(initialOrders)
     //Sorting the items
     const pendingOrders = useMemo(() => 
         orders

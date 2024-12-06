@@ -14,11 +14,6 @@ import {
   Select,
   MenuItem,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Typography,
 } from '@mui/material';
 
@@ -34,8 +29,14 @@ export default function Index({ auth, stores }) {
   const [totalPrice, setTotalPrice] = useState(0);
   const [created_at, setCreated_at] = useState(new Date().toISOString());
 
+  const [selectedItemIndi, setSelectedItemIndi] = useState(0);
+  const [quantityIndi, setQuantityIndi] = useState(0);
+  const [created_atIndi, setCreated_atIndi] = useState(new Date().toISOString());
+  const [totalPriceIndi, setTotalPriceIndi] = useState(0);
+
   
   console.log(userId, quantity, totalPrice, created_at);
+
   const handleSubmitOrder = async () => {
     if (!selectedStore || !selectedItem || !quantity || !totalPrice || !created_at) {
       setSnackbarMessage('Please fill in all fields.');
@@ -67,6 +68,48 @@ export default function Index({ auth, stores }) {
       setTotalPrice(0);
       setCreated_at(new Date().toISOString());
       setSelectedItem(0);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || 'Failed to submit the order. Please try again.';
+      setSnackbarMessage(errorMessage);
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSubmitOrderIndi = async () => {
+    if (!selectedStore || !selectedItemIndi || !quantityIndi || !totalPriceIndi || !created_atIndi) {
+      setSnackbarMessage('Please fill in all fields.');
+      setSnackbarOpen(true);
+      return;
+    }
+  
+    const payload = {
+      user_id: userId, // If user_id is optional, handle accordingly
+      item_id: selectedItemIndi.id,
+      store_id: selectedStore.id,
+      quantity: 1,
+      total_price: totalPriceIndi,
+      created_at: created_atIndi,
+    };
+  
+    try {
+      for (let index = 0; index < quantityIndi; index++) {
+        const response = await axios.post(route('orders.physicalPayment'), payload, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+
+        setSnackbarMessage(response.data.message || 'Order submitted successfully!');
+        setSnackbarOpen(true);
+      }
+  
+  
+      // Optionally, reset form fields after submission
+      setQuantityIndi(0);
+      setTotalPriceIndi(0);
+      setCreated_atIndi(new Date().toISOString());
+      setSelectedItemIndi(0);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || 'Failed to submit the order. Please try again.';
@@ -133,7 +176,7 @@ export default function Index({ auth, stores }) {
 
 
           {/* This is the form */}
-          
+        <div className='adminPhysicalPaymentContainer'>
         <div>
         <FormControl margin="dense">
               <InputLabel id="store-label" sx={{ color: 'white' }}>
@@ -169,6 +212,41 @@ export default function Index({ auth, stores }) {
         </FormControl>
         </div>
 
+        <div>
+        <FormControl margin="dense">
+              <InputLabel id="store-label" sx={{ color: 'white' }}>
+                Items
+              </InputLabel>
+              <Select
+                labelId="store-label"
+                name="store"
+                value={selectedItemIndi}
+                onChange={(e) => setSelectedItemIndi(e.target.value)}
+                label="Store"
+                sx={{ minWidth: '200px', color: 'white', border: '1px solid grey' }}
+              >
+                {selectedStore.items.map((item) => (
+                  <MenuItem key={item.id} value={item}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <Typography sx={{ marginTop: '16px', color: 'white' }}>Quantity: </Typography>
+              <TextInput value={quantityIndi} onChange={(e) => setQuantityIndi(e.target.value)} />
+
+              <Typography sx={{ marginTop: '16px', color: 'white' }}>Total Price: </Typography>
+              <TextInput value={totalPriceIndi} onChange={(e) => setTotalPriceIndi(e.target.value)} />
+
+              <Typography sx={{ marginTop: '16px', color: 'white' }}>Date: </Typography>
+                <input type="datetime-local"  value={created_atIndi}  onChange={(e) => setCreated_atIndi(e.target.value)}/>
+
+                <Button variant='contained' sx={{marginTop: "16px", backgroundColor: blueGrey[800]}} onClick={handleSubmitOrderIndi}>
+                    Submit
+                </Button>
+        </FormControl>
+        </div>
+        </div>
 
 
 

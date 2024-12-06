@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, CircularProgress, TextField, Select, MenuItem, Snackbar, IconButton } from '@mui/material';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import AdminUserCard from './AdminUsersComponents/AdminUserCard';
@@ -31,7 +31,7 @@ const theme = createTheme({
 });
 
 const Index = ({ auth, users: initialUsers }) => {
-  //console.log(initialUsers);
+  console.log(initialUsers);
   const [users, setUsers] = useState(initialUsers.data); // Store user data
   const [currentPage, setCurrentPage] = useState(initialUsers.current_page); // Track the current page
   const [lastPage, setLastPage] = useState(initialUsers.last_page); // Track the last page

@@ -4,13 +4,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import SellerItemSort from './SellerComponents/SellerItemSort';
 import SellerSearchSort from './SellerComponents/SellerSearchSort';
-import StoreItemLayout from '../Stores/StoresComponents/StoreItemLayout';
+import SellerItemLayout from './SellerComponents/SellerItemLayout';
 import SellerItemInfo from './SellerComponents/SellerItemInfo';
 //import SellerUpdateItem from './SellerComponents/SellerUpdateItem';
 import SellerUpdateItemCopy from './SellerComponents/SellerUpdateItemCopy';
 import SellerAddItem from './SellerComponents/SellerAddItem';
 import { Button } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Index({ auth, items: initialItems, stores }) {
 
@@ -22,6 +25,14 @@ export default function Index({ auth, items: initialItems, stores }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const itemRefs = useRef({});
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setSnackbarOpen(false);
+      };
 
     //for deleting the item
     const handleItemDelete = (deletedItemId) => {
@@ -134,7 +145,10 @@ export default function Index({ auth, items: initialItems, stores }) {
                                 className="item-container"
                                 onClick={() => handleItemSelect(item)}
                             >
-                                <StoreItemLayout
+                                <SellerItemLayout
+                                    item={item}
+                                    itemID={item.id}
+                                    auth={auth}
                                     quantity={item.quantity}
                                     name={item.name}
                                     price={item.price}
@@ -142,6 +156,8 @@ export default function Index({ auth, items: initialItems, stores }) {
                                     state={item.state}
                                     type={item.type}
                                     className={selectedItem && selectedItem.id === item.id ? 'selected-item' : ''}
+                                    setSnackbarMessage={setSnackbarMessage}
+                                    setSnackbarOpen={setSnackbarOpen}
                                 />
                             </Grid>
                         ))}
@@ -171,6 +187,23 @@ export default function Index({ auth, items: initialItems, stores }) {
                 onClose={handleAddClose}
                 stores={stores}
                 authUser={auth}
+            />
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                message={snackbarMessage}
+                action={
+                <IconButton
+                    size="small"
+                    aria-label="close"
+                    color="inherit"
+                    onClick={handleSnackbarClose}
+                >
+                    <CloseIcon fontSize="small" />
+                </IconButton>
+                }
             />
 
         </AuthenticatedLayout>

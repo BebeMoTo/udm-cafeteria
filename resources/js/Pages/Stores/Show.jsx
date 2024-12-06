@@ -121,6 +121,8 @@ const Show = ({ auth, store, items }) => {
                                 onClick={() => handleItemSelect(item)}
                             >
                                 <StoreItemLayout
+                                    itemID={item.id}
+                                    auth={auth}
                                     name={item.name}
                                     price={item.price}
                                     image={item.image_path}

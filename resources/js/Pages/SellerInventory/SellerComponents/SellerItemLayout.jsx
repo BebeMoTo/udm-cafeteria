@@ -1,5 +1,3 @@
-// In StoreItemLayout.jsx
-
 import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -16,9 +14,63 @@ import { useState } from 'react';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 
-export default function StoreItemLayout({quantity: initialQuantity, name, price, image, state, type, className, auth, itemID, item, setSnackbarMessage, setSnackbarOpen}) {
+export default function SellerItemLayout({quantity: initialQuantity, name, price, image, state, type, className, auth, itemID, item, setSnackbarMessage, setSnackbarOpen}) {
     const [quantity, setQuantity] = useState(initialQuantity);
 
+    const [userId, setUserId] = useState(0);
+    const [item_id, setItem_id] = useState(itemID);
+    const [store_id, setStore_id] = useState(item.store_id);
+    const [buyAmount, setBuyAmount] = useState(1);
+    const [totalPrice, setTotalPrice] = useState(price);
+    const [created_at, setCreated_at] = useState(dayjs().format('YYYY-MM-DD HH:mm:ss'));
+
+    const addSubtractItem = () => {
+        return (
+            <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", flexGrow: 0, gap: "5px", width: "100%", position: "absolute", left: 0, top: "50%", padding: "0 5%"}}>
+            <Button onClick={(event) => subButtonClicked(event)} variant='contained' sx={{background: blueGrey[500]}}>-</Button>
+            </div>
+        )
+    }
+
+    const subButtonClicked = async (event) => {
+        event.stopPropagation();
+        
+        if (!store_id || !item_id || !quantity || !totalPrice || !created_at) {
+            setSnackbarMessage('Please fill in all fields.');
+            setSnackbarOpen(true);
+            return;
+          }
+        
+          const payload = {
+            user_id: userId, // If user_id is optional, handle accordingly
+            item_id: item_id,
+            store_id: store_id,
+            quantity: buyAmount,
+            total_price: totalPrice,
+            created_at,
+          };
+        
+          try {
+            const response = await axios.post(route('orders.physicalPayment'), payload, {
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+            });
+        
+            setSnackbarMessage(response.data.message || 'Order submitted successfully!');
+            setSnackbarOpen(true);
+        
+            // Optionally, reset form fields after submission
+          } catch (error) {
+            console.error("Error details:", error);
+            const errorMessage =
+              error.response?.data?.message || 'Failed to submit the order. Please try again.';
+            setSnackbarMessage(errorMessage);
+            setSnackbarOpen(true);
+          }
+          setQuantity(quantity - 1);
+
+    }
     const getItemTypeLabel = (type) => {
         switch (type) {
             case "Meal":
@@ -59,6 +111,7 @@ export default function StoreItemLayout({quantity: initialQuantity, name, price,
 
     return (
         <Card className={`store-item-card ${className}`} sx={{ maxWidth: '100%', position: 'relative' }}>
+            {auth.user.type !== "User" ? <p className='inventoryQuantity'>{quantity}</p> : ""}
             <CardActionArea sx={{position: "relative"}}>
                 <CardMedia
                     component="img"
@@ -68,6 +121,7 @@ export default function StoreItemLayout({quantity: initialQuantity, name, price,
                     sx={{ minHeight: "200px", maxHeight: "200px", padding: 0 }}
                 />
                 <CardContent>
+                    {auth.user.type !== "User" ? addSubtractItem() : ""}
                     <Typography noWrap gutterBottom variant="h6" component="div" sx={{ fontSize: "1rem" }}>
                         {name}
                     </Typography>

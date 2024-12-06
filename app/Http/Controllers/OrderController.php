@@ -126,7 +126,7 @@ class OrderController extends Controller
         } 
     
         return response()->json([
-            'message' => 'Order created successfully! Awaiting seller confirmation.',
+            'message' => 'Order created successfully!',
             'order' => $order,
         ], 201);
     }
@@ -145,9 +145,23 @@ class OrderController extends Controller
             'created_at' => 'required',
         ]);
     
+        // Find the item
+        $item = Item::find($validated['item_id']);
+        
+        // Check if enough stock is available
+        if ($item->quantity !== null && $item->quantity < $validated['quantity']) {
+            return response()->json(['message' => 'Insufficient item stock.'], 400);
+        }
+
+        // Check the store's state
+        $store = Store::find($validated['store_id']);
+        if ($store->state === 0) {
+            return response()->json(['message' => 'The store is currently closed.'], 500);
+        }
+    
         // Create the order without deducting the item stock
         $order = Order::create([
-            'user_id' => 0,
+            'user_id' => $validated['user_id'],
             'item_id' => $validated['item_id'],
             'store_id' => $validated['store_id'],
             'quantity' => $validated['quantity'],
@@ -160,17 +174,20 @@ class OrderController extends Controller
             'created_at' => $validated['created_at'],
             'payment_method' => "Physical Cash",
         ]);
-
-        $store = Store::find($validated['store_id']);
-        if ($store->state === 0) {
-            return response()->json(['message' => 'The store is currently closed.'], 500);
-        } 
+    
+        // Reduce the item stock
+        if ($item->quantity !== null) {
+            $item->quantity -= $validated['quantity'];
+            $item->save();
+        }
+    
     
         return response()->json([
-            'message' => 'Order created successfully! Awaiting seller confirmation.',
+            'message' => 'Order created successfully!',
             'order' => $order,
         ], 201);
     }
+    
 
     public function paymongo(Request $request)
     {
@@ -376,15 +393,23 @@ public function generalCancel(Request $request)
         
 
         $user = $order->user; // Assuming you have a belongsTo relationship set up between Order and User
+        $store = $order->store;
+
+        if ($store->balance < $order->total_price) {
+            return response()->json(['error' => 'Store doesn`t have enough balance.'], 500);
+        }
 
         // Log the cancellation event
         Log::info('Cancelling Order ID: ' . $order->id . ' for User ID: ' . $user->id);
 
         // Add the total price back to the user's balance
         $user->balance += $order->total_price;
+        $store->balance -= $order->total_price;
 
         // Reduce the amount from the user's expense
-        $user->expense -= $order->total_price;
+        if ($order->payment_method === "eBalance") {
+            $user->expense -= $order->total_price;
+        }
 
         // Update the user record
         $user->save();
@@ -593,16 +618,25 @@ public function generalCancel(Request $request)
         //for seller
         $storeId = User::where('id', $userId)->value('store_id');
 
-        $dailyIncome = Order::where('store_id', $storeId) // Filter by store ID
-        ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
-        ->whereIn('status', ['Accepted', 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
+        $dailyIncome = Order::where('store_id', $storeId)
+        ->where('created_at', '>=', Carbon::today()->subDays(6)) // Last 7 days
+        ->whereIn('status', ['Accepted', 'Claimed'])
+        ->select(
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
+        )
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
         ->map(function ($order) {
             return [
                 'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
                 'total_amount' => $order->total_amount,
             ];
         });
@@ -650,15 +684,24 @@ public function generalCancel(Request $request)
 
 
         //for admin
-        $overallDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
-        ->whereIn('status', ['Accepted', "Ready", 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
+        $overallDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Last 7 days including today
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include specific statuses
+        ->select(
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
+        )
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
         ->map(function ($order) {
             return [
                 'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
                 'total_amount' => $order->total_amount,
             ];
         });
@@ -694,42 +737,55 @@ public function generalCancel(Request $request)
         });
     
         $storeWiseDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days including today
-        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted and Claimed orders
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted, Ready, and Claimed orders
         ->select(
-            'store_id', // Include the store ID
-            DB::raw('DATE(pending_time) as date'), // Group by date
-            DB::raw('SUM(total_price) as total_amount') // Calculate total sales
+            'store_id',
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
         )
         ->groupBy('store_id', 'date') // Group by store and date
         ->orderBy('store_id') // Order by store for easier organization
         ->orderBy('date', 'asc') // Then order by date
-        ->with('store')
+        ->with('store') // Load store relationship
         ->get()
         ->map(function ($order) {
             return [
                 'store_id' => $order->store_id,
                 'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
                 'total_amount' => $order->total_amount,
                 'store' => $order->store->name,
             ];
         });
+    
 
-        $storeWiseMonthlyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(30)) // Past 30 days including today
-        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted and Claimed orders
+        $storeWiseMonthlyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(30)) // Past 7 days including today
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include only Accepted, Ready, and Claimed orders
         ->select(
-            'store_id', // Include the store ID
-            DB::raw('DATE(pending_time) as date'), // Group by date
-            DB::raw('SUM(total_price) as total_amount') // Calculate total sales
+            'store_id',
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
         )
         ->groupBy('store_id', 'date') // Group by store and date
         ->orderBy('store_id') // Order by store for easier organization
         ->orderBy('date', 'asc') // Then order by date
-        ->with('store')
+        ->with('store') // Load store relationship
         ->get()
         ->map(function ($order) {
             return [
                 'store_id' => $order->store_id,
                 'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
                 'total_amount' => $order->total_amount,
                 'store' => $order->store->name,
             ];

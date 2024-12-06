@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -177,14 +178,18 @@ class StoreController extends Controller
         $store->carts()->delete(); // Delete related carts
         $store->orders()->delete(); // Delete related orders
         $store->transactions()->delete(); // Delete related transactions
+        
+        // Delete sellers associated with the store
+        User::where('store_id', $store->id)->where('type', 'Seller')->delete();
     
         // Finally, delete the store
         $store->delete();
     
         return response()->json([
             'success' => true,
-            'message' => 'Store and its related data deleted successfully.',
+            'message' => 'Store, its related data, and sellers deleted successfully.',
         ]);
     }
+    
     
 }

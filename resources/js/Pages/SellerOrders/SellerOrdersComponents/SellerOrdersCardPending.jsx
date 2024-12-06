@@ -8,6 +8,7 @@ import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs';
 
 export default function SellerOrdersCardPending({order, children}) {
+
   return (
     <Card sx={{ display: 'flex', width: '95%', height: '200px', margin: "auto", marginTop: "8px" }}>
       {/* Left side with image */}
@@ -38,7 +39,7 @@ export default function SellerOrdersCardPending({order, children}) {
             Payment Method: {order.payment_method}
           </Typography>
           <Typography gutterBottom variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-            Buyer: {order.user.name}
+            Buyer: {order.user ? order.user.name : "Physical Buyer"}
           </Typography>
           <Typography gutterBottom variant="body2"  sx={{ fontSize: '0.8rem' }}>
            <b> Total Price: {'\u20B1'}{order.total_price} </b>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const DailyOrdersChartIndividualMonth = ({ data }) => {
+const DailyOrdersChartIndividual = ({ data }) => {
   useEffect(() => {
     if (window.google) {
       // Load the Google Charts library
@@ -10,8 +10,14 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
 
     function drawChart() {
       const chartData = [
-        ['Date', 'Total Amount'], // Chart headings
-        ...data.map(item => [item.date, item.total_amount]), // Data points
+        ['Date', 'Total Amount', 'eBalance', 'Paymongo', 'Physical Cash'], // Chart headings
+        ...data.map(item => [
+          item.date,
+          item.total_amount,  // Total amount line
+          item.eBalance,      // eBalance line
+          item.Paymongo,      // Paymongo line
+          item.PhysicalCash   // Physical Cash line
+        ]), // Data points
       ];
 
       const options = {
@@ -20,7 +26,7 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
         vAxis: { title: 'Total Amount' },
         curveType: 'none',
         legend: { position: 'bottom' },
-        colors: ['#5b9f68'],
+        colors: ['#5b9f68', '#1f77b4', '#ff7f0e', '#d62728'], // Colors for each line
       };
 
       const chart = new window.google.visualization.LineChart(
@@ -35,4 +41,4 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
   );
 };
 
-export default DailyOrdersChartIndividualMonth;
+export default DailyOrdersChartIndividual;

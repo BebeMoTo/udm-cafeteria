@@ -27,17 +27,17 @@ export default function Authenticated({ user, header, type, balance, children, s
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
-                                {type !== 'Seller' && (
+                                {type == 'User' && (
                                     <NavLink href={route('stores.index')} active={route().current('stores.index')}>
                                         Stores
                                     </NavLink>
                                 )}
-                                {type !== 'Seller' && (
+                                {type == 'User' && (
                                     <NavLink href={route('carts.index')} active={route().current('carts.index')}>
                                         Cart
                                     </NavLink>
                                 )}
-                                {type !== 'Seller' && (
+                                {type == 'User' && (
                                     <NavLink href={route('orders.index')} active={route().current('orders.index')}>
                                         Orders
                                     </NavLink>
@@ -160,17 +160,17 @@ export default function Authenticated({ user, header, type, balance, children, s
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
-                        {type !== 'Seller' && (
+                        {type == 'User' && (
                             <ResponsiveNavLink href={route('stores.index')} active={route().current('stores.index')}>
                                 Stores
                             </ResponsiveNavLink>
                         )}
-                        {type !== 'Seller' && (
+                        {type == 'User' && (
                             <ResponsiveNavLink href={route('carts.index')} active={route().current('carts.index')}>
                                 Cart
                             </ResponsiveNavLink>
                         )}
-                        {type !== 'Seller' && (
+                        {type == 'User' && (
                             <ResponsiveNavLink href={route('orders.index')} active={route().current('orders.index')}>
                                 Orders
                             </ResponsiveNavLink>
@@ -238,7 +238,13 @@ export default function Authenticated({ user, header, type, balance, children, s
                 </div>
             </nav>
 
-            {header && type !== "Seller" && (
+            {header && type === "Admin" && (
+                <header className="bg-white shadow" style={{paddingTop: "64px"}}>
+                    <div className="max-w-7xl mx-auto pb-4 pt-5 px-4 sm:px-6 lg:px-8">{header}</div>
+                </header>
+            )}
+
+            {header && type === "User" && (
                 <header className="bg-white shadow" style={{paddingTop: "64px"}}>
                     <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8"><h2 className="font-semibold text-xl text-gray-800 leading-tight"><WalletIcon/>: {'\u20B1'}{userBalance} <span style={{fontSize: ".7rem", color: "gray"}}>({user.expense})</span></h2></div>
                     <div className="max-w-7xl mx-auto pb-4 pt-2 px-4 sm:px-6 lg:px-8">{header}</div>
