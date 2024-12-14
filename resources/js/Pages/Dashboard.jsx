@@ -8,11 +8,15 @@ import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
 import BarGraph from './DashboardComponents/BarGraph';
 import BarGraphOverallBestSelling from './DashboardComponents/BarGraphOverallBestSelling';
 import MyCardSimple from './DashboardComponents/MyCardSimple';
+import MyCardSimple1 from './DashboardComponents/MyCardSimple1';
 import DailyOrdersChartIndividual from './DashboardComponents/DailyOrdersChartIndividual';
 import DailyOrdersChartIndividualMonth from './DashboardComponents/DailyOrdersChartIndividualMonth';
 import DailyOrdersChartOverall from './DashboardComponents/DailyOrdersChartOverall';
+import DailyOrdersChartOverallMonth from './DashboardComponents/DailyOrdersChartOverallMonth';
+import DailyOrdersChartOverallYear from './DashboardComponents/DailyOrdersChartOverallYear';
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome,
+
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome,
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
@@ -94,6 +98,52 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
         );
     }
 
+    const [selectedRange, setSelectedRange] = useState("week");
+    const isAdminOverallSales = () => {
+        if (selectedRange === "week") {
+            return(
+                <div>
+                    <label htmlFor="range-select">Select Range:</label> &nbsp;
+                    <select value={selectedRange} onChange={(e) => setSelectedRange(e.target.value)}>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select> <br /><br />
+        
+                    <DailyOrdersChartOverall data={overallDailyIncome}/>
+                </div>
+                );
+        }
+        else if (selectedRange === "month") {
+            return(
+                <div>
+                    <label htmlFor="range-select">Select Range:</label> &nbsp;
+                    <select value={selectedRange} onChange={(e) => setSelectedRange(e.target.value)}>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select> <br /><br />
+        
+                    <DailyOrdersChartOverallMonth data={overallMonthlyIncome}/>
+                </div>
+                );
+        }
+        else if (selectedRange === "year") {
+            return(
+                <div>
+                    <label htmlFor="range-select">Select Range:</label> &nbsp;
+                    <select value={selectedRange} onChange={(e) => setSelectedRange(e.target.value)}>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select> <br /><br />
+                    
+                    <DailyOrdersChartOverallYear data={overallYearlyIncome}/>
+                </div>
+                );
+        }
+    }
+
     const isAdminMonth = () => {
         return(
         <div>
@@ -129,7 +179,13 @@ console.log('Props received:', props); // Debugging
                 <div className=" mx-auto sm:px-6 lg:px-8">
 
                 {/*Admin Graphs and Charts*/}
-                {auth.user.type === "Admin" ? <DailyOrdersChartOverall data={overallDailyIncome}/> : ""}
+
+                <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
+                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Admin" ? <MyCardSimple1 plain={true} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                </div>
+                {auth.user.type === "Admin" ? isAdminOverallSales() : ""}
+
                 {auth.user.type === "Admin" ? isAdmin() : ""}
                 {auth.user.type === "Admin" ? <DailyOrdersChartIndividual data={filteredSales} />: ""}
                 {auth.user.type === "Admin" ? isAdminMonth() : ""}
@@ -139,11 +195,11 @@ console.log('Props received:', props); // Debugging
 
 
                 {/*Seller Infos Card*/}
-                <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto"}}>                
-                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesToday.toFixed(2)} title={"Sales Today"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={''} number={pendingOrders} title={"Pending Orders"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple pesoSign={''} number={acceptedOrders} title={"Accepted Orders"}/> : ""}
+                <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
+                    {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple1 plain={true} pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple1 plain={true} pesoSign={''} number={pendingOrders} title={"Pending Orders"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple1 plain={true} pesoSign={''} number={acceptedOrders} title={"Accepted Orders"}/> : ""}
                 </div>
 
 

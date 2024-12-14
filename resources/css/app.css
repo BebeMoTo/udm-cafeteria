@@ -122,3 +122,27 @@ input[type="number"] {
   text-align: center;
   font-weight: bold;
 }
+
+
+
+
+.table-container {
+  opacity: 0;
+  transform: translateY(-20px); /* Start with the table slightly above */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth fade and slide */
+  max-height: 0;
+  overflow: hidden;
+}
+
+.table-container.show {
+  opacity: 1;
+  transform: translateY(0); /* Slide to the normal position */
+  max-height: 100vh; /* Allow the table to expand */
+}
+
+.table-container.hide {
+  opacity: 0;
+  transform: translateY(-20px); /* Slide back up */
+  max-height: 0; /* Hide the table */
+  overflow: hidden; /* Prevent any overflow content */
+}

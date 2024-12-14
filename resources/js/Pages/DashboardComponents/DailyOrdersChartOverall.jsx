@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const DailyOrdersChartOverall = ({ data }) => {
+  const [showTable, setShowTable] = useState(false); // State to toggle table visibility
+
   useEffect(() => {
     // Load the Google Charts library
     window.google.charts.load('current', { packages: ['corechart'] });
@@ -8,13 +10,13 @@ const DailyOrdersChartOverall = ({ data }) => {
 
     function drawChart() {
       const chartData = [
-        ['Date', 'eBalance', 'Paymongo', 'Physical Cash', 'Total Amount'], // Chart headings
+        ['Date', 'Total Amount', 'Physical Cash', 'eBalance', 'Paymongo'], // Chart headings
         ...data.map(item => [
           item.date,
+          item.total_amount, // Total amount line
+          item.PhysicalCash, // Physical Cash line
           item.eBalance, // eBalance line
           item.Paymongo, // Paymongo line
-          item.PhysicalCash, // Physical Cash line
-          item.total_amount, // Total amount line
         ]), // Data points
       ];
 
@@ -36,13 +38,32 @@ const DailyOrdersChartOverall = ({ data }) => {
 
   return (
     <div style={{ width: '100%', margin: 'auto' }}>
+      {/* Chart Section */}
       <div
         id="daily-orders-chart-overall"
         style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: '16px' }}
       />
 
-      {/* Table Section */}
-      <div style={{ marginTop: '16px', width: '100%', overflow: 'auto' }}>
+      {/* Toggle Button */}
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <button
+          onClick={() => setShowTable(!showTable)} // Toggle table visibility
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            backgroundColor: showTable ? '#d9534f' : '#5cb85c',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          {showTable ? 'Hide Table' : 'Show Table'}
+        </button>
+      </div>
+
+      {/* Table Section with Animation */}
+      <div className={`table-container ${showTable ? 'show' : 'hide'}`}>
         <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>Overall Sales Data Interpretation</h3>
         <table
           style={{
@@ -73,7 +94,7 @@ const DailyOrdersChartOverall = ({ data }) => {
             ))}
           </tbody>
         </table>
-      </div> <br /><br />
+      </div>
     </div>
   );
 };

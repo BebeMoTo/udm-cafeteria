@@ -78,9 +78,13 @@ export default function Register() {
                     >
                         <option value="">Select Department</option>
                         <option value="CET">CET</option>
-                        <option value="CBA">CBA</option>
+                        <option value="CHS">CHS</option>
+                        <option value="CCJ">CCJ</option>
                         <option value="CE">CE</option>
+                        <option value="CBA">CBA</option>
                         <option value="CAS">CAS</option>
+                        <option value="CL">CL</option>
+                        <option value="Faculty">Faculty</option>
                     </select>
 
                     <InputError message={errors.department} className="mt-2" />

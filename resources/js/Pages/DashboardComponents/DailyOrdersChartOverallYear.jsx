@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const DailyOrdersChartIndividual = ({ data }) => {
-  const [showTable, setShowTable] = useState(false); // State to toggle table visibility
+const DailyOrdersChartOverallYear = ({ data }) => {
+  const [showTable, setShowTable] = useState(false); // State to control table visibility
 
   useEffect(() => {
-    if (window.google) {
-      // Load the Google Charts library
-      window.google.charts.load('current', { packages: ['corechart'] });
-      window.google.charts.setOnLoadCallback(drawChart);
-    }
+    // Load the Google Charts library
+    window.google.charts.load('current', { packages: ['corechart'] });
+    window.google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
       const chartData = [
@@ -23,7 +21,7 @@ const DailyOrdersChartIndividual = ({ data }) => {
       ];
 
       const options = {
-        title: 'Daily Orders (Last 7 Days)',
+        title: 'Overall Sales (This Month)',
         hAxis: { title: 'Date' },
         vAxis: { title: 'Total Amount' },
         curveType: 'none',
@@ -32,17 +30,17 @@ const DailyOrdersChartIndividual = ({ data }) => {
       };
 
       const chart = new window.google.visualization.LineChart(
-        document.getElementById('daily-orders-individual-chart')
+        document.getElementById('daily-orders-chart-overall-year')
       );
       chart.draw(window.google.visualization.arrayToDataTable(chartData), options);
     }
-  }, [data]); // Re-run useEffect when `data` changes
+  }, [data]);
 
   return (
     <div style={{ width: '100%', margin: 'auto' }}>
       {/* Chart Section */}
       <div
-        id="daily-orders-individual-chart"
+        id="daily-orders-chart-overall-year"
         style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: '16px' }}
       />
 
@@ -66,7 +64,7 @@ const DailyOrdersChartIndividual = ({ data }) => {
 
       {/* Table Section with Animation */}
       <div className={`table-container ${showTable ? 'show' : 'hide'}`}>
-        <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>Daily Orders Data Interpretation</h3>
+        <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>Overall Sales Data Interpretation</h3>
         <table
           style={{
             width: '100%',
@@ -78,20 +76,20 @@ const DailyOrdersChartIndividual = ({ data }) => {
           <thead>
             <tr style={{ backgroundColor: '#f4f4f4' }}>
               <th style={{ border: '1px solid #ddd', padding: '8px' }}>Date</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Total Amount</th>
               <th style={{ border: '1px solid #ddd', padding: '8px' }}>eBalance</th>
               <th style={{ border: '1px solid #ddd', padding: '8px' }}>Paymongo</th>
               <th style={{ border: '1px solid #ddd', padding: '8px' }}>Physical Cash</th>
+              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Total Amount</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item, index) => (
               <tr key={index} style={index % 2 === 0 ? { backgroundColor: '#f9f9f9' } : {}}>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.date}</td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount}</td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.eBalance}</td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Paymongo}</td>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.PhysicalCash}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount}</td>
               </tr>
             ))}
           </tbody>
@@ -101,4 +99,4 @@ const DailyOrdersChartIndividual = ({ data }) => {
   );
 };
 
-export default DailyOrdersChartIndividual;
+export default DailyOrdersChartOverallYear;

@@ -620,7 +620,7 @@ public function generalCancel(Request $request)
 
         $dailyIncome = Order::where('store_id', $storeId)
         ->where('created_at', '>=', Carbon::today()->subDays(6)) // Last 7 days
-        ->whereIn('status', ['Accepted', 'Claimed'])
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
         ->select(
             DB::raw('DATE(pending_time) as date'),
             DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
@@ -659,16 +659,36 @@ public function generalCancel(Request $request)
         });
 
         // Total Sales Today
-        $salesToday = Order::where('store_id', $storeId)
-        ->whereDate('pending_time', Carbon::today())
-        ->whereIn('status', ['Accepted', 'Claimed'])
-        ->sum('total_price');
+        // $salesToday = Order::where('store_id', $storeId)
+        // ->whereDate('pending_time', Carbon::today())
+        // ->whereIn('status', ['Accepted','Ready', 'Claimed'])
+        // ->sum('total_price');
+
+        $salesToday = [
+            'sales_today' => Order::where('store_id', $storeId)
+                ->whereDate('pending_time', Carbon::today())
+                ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+                ->sum('total_price'),
+        
+            'sales_yesterday' => Order::where('store_id', $storeId)
+                ->whereDate('pending_time', Carbon::yesterday())
+                ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+                ->sum('total_price'),
+        ];
+        
+        $percentageChange = 0;
+        
+        // Calculate the percentage change if there are sales for yesterday
+        if ($salesToday['sales_yesterday'] > 0) {
+            $percentageChange = (($salesToday['sales_today'] - $salesToday['sales_yesterday']) / $salesToday['sales_yesterday']) * 100;
+        }
+        $salesToday['percentage_change'] = $percentageChange;
 
         // Total Sales This Month
         $salesThisMonth = Order::where('store_id', $storeId)
         ->whereMonth('pending_time', Carbon::now()->month)
         ->whereYear('pending_time', Carbon::now()->year)
-        ->whereIn('status', ['Accepted', 'Claimed'])
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
         ->sum('total_price');
 
         // Pending Orders Count
@@ -706,18 +726,81 @@ public function generalCancel(Request $request)
             ];
         });
 
-        $overallMonthlyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(30)) // Past 30 days including today
-        ->whereIn('status', ['Accepted','Ready', 'Claimed']) // Include only Accepted and Claimed orders
-        ->select(DB::raw('DATE(pending_time) as date'), DB::raw('SUM(total_price) as total_amount'))
+        $overallMonthlyIncome = Order::whereBetween('pending_time', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]) // Current month
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include specific statuses
+        ->select(
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
+        )
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get()
         ->map(function ($order) {
             return [
                 'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
                 'total_amount' => $order->total_amount,
             ];
         });
+
+        // Get sales data for the current year grouped by month
+        $overallYearlyIncome = Order::whereBetween('pending_time', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()])
+            ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+            ->select(
+                DB::raw('MONTH(pending_time) as month'),
+                DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+                DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+                DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+                DB::raw('SUM(total_price) as total_amount')
+            )
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get()
+            ->mapWithKeys(function ($order) {
+                return [
+                    $order->month => [
+                        'month' => Carbon::createFromFormat('m', $order->month)->format('F'),
+                        'eBalance' => $order->eBalance,
+                        'Paymongo' => $order->Paymongo,
+                        'PhysicalCash' => $order->PhysicalCash,
+                        'total_amount' => $order->total_amount,
+                    ]
+                ];
+            });
+
+        // All months of the year
+        $allMonths = collect([
+            'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+        ]);
+
+        // Create an array of all months with zero values for months that have no sales
+        $fullYearData = $allMonths->map(function ($month, $index) use ($overallYearlyIncome) {
+            $monthNumber = $index + 1; // Months are 1-indexed (1 for January, 2 for February, etc.)
+            
+            if ($overallYearlyIncome->has($monthNumber)) {
+                // Return data for months with sales
+                return $overallYearlyIncome->get($monthNumber);
+            } else {
+                // Return zero values for months without sales
+                return [
+                    'month' => $month,
+                    'eBalance' => 0,
+                    'Paymongo' => 0,
+                    'PhysicalCash' => 0,
+                    'total_amount' => 0,
+                ];
+            }
+        });
+
+        // Convert the data into a collection of all months
+        $fullYearData = $fullYearData->values();  // Reset the keys to be numeric
+
+    
 
         // Top Selling Items Overall
         $overallTopSellingItems = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Past 7 days
@@ -817,6 +900,7 @@ public function generalCancel(Request $request)
             'overallTopSellingItems' => $overallTopSellingItems,
             'storeWiseDailyIncome' => $storeWiseDailyIncome,
             'storeWiseMonthlyIncome' => $storeWiseMonthlyIncome,
+            'overallYearlyIncome' => $fullYearData,
 
         ]);
     }
