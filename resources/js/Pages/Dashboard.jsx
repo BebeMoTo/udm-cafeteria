@@ -16,7 +16,7 @@ import DailyOrdersChartOverallMonth from './DashboardComponents/DailyOrdersChart
 import DailyOrdersChartOverallYear from './DashboardComponents/DailyOrdersChartOverallYear';
 
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, predictedSales, percentageOfPrediction, percentageOfPrediction1,
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesTodayAdmin, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, 
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
@@ -181,8 +181,8 @@ console.log('Props received:', props); // Debugging
                 {/*Admin Graphs and Charts*/}
 
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
-                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
-                    {auth.user.type === "Admin" ? <MyCardSimple1 plain={true} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesTodayAdmin.percentage_change} percentVal1={salesTodayAdmin.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesTodayAdmin.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesTodayAdmin.percentage_to_prediction} percentVal1={salesTodayAdmin.percentage_to_prediction} plain={false} pesoSign={'\u20B1'} number={salesTodayAdmin.predicted_sales.toFixed(2)} title={"Sales Prediction"}/> : ""}
                 </div>
                 {auth.user.type === "Admin" ? isAdminOverallSales() : ""}
 
@@ -197,7 +197,7 @@ console.log('Props received:', props); // Debugging
                 {/*Seller Infos Card*/}
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
                     {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_change} percentVal1={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
-                    {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_to_prediction} percentVal1={salesToday.percentage_to_prediction} plain={false} pesoSign={'\u20B1'} number={salesToday.predicted_sales.toFixed(2)} title={"Sales Prediciton"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_to_prediction} percentVal1={salesToday.percentage_to_prediction} plain={false} pesoSign={'\u20B1'} number={salesToday.predicted_sales.toFixed(2)} title={"Sales Prediction"}/> : ""}
                     {auth.user.type === "Seller" ? <MyCardSimple1 plain={true} pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
                 </div>
 

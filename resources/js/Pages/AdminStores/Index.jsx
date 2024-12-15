@@ -8,6 +8,8 @@ import { Head } from '@inertiajs/react';
 import StoreInfoUpdate from '../SellerStore/SellerStoreComponents/StoreInfoUpdate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { blueGrey } from '@mui/material/colors';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { grey } from '@mui/material/colors';
 import {
   FormControl,
   InputLabel,
@@ -21,10 +23,18 @@ import {
   DialogTitle,
 } from '@mui/material';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: grey[900], // Set the primary color to white
+    },
+  },
+});
+
 export default function Index({ auth, stores }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [selectedStore, setSelectedStore] = useState(1);
+  const [selectedStore, setSelectedStore] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleSnackbarClose = (event, reason) => {
@@ -69,6 +79,7 @@ export default function Index({ auth, stores }) {
   };
 
   return (
+    <ThemeProvider theme={theme}>
     <Authenticated
       user={auth.user}
       header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Store Information</h2>}
@@ -87,7 +98,7 @@ export default function Index({ auth, stores }) {
             }}
           >
             <FormControl margin="dense">
-              <InputLabel id="store-label" sx={{ color: 'white' }}>
+              <InputLabel id="store-label" sx={{ color: 'black' }}>
                 Store
               </InputLabel>
               <Select
@@ -96,8 +107,9 @@ export default function Index({ auth, stores }) {
                 value={selectedStore}
                 onChange={(e) => setSelectedStore(e.target.value)}
                 label="Store"
-                sx={{ minWidth: '200px', color: 'white', border: '1px solid grey' }}
+                sx={{ minWidth: '200px', color: 'black', border: '1px solid grey' }}
               >
+                <MenuItem value={0}>Select Store</MenuItem>
                 {stores.map((store) => (
                   <MenuItem key={store.id} value={store}>
                     {store.name}
@@ -157,5 +169,6 @@ export default function Index({ auth, stores }) {
         }
       />
     </Authenticated>
+    </ThemeProvider>
   );
 }

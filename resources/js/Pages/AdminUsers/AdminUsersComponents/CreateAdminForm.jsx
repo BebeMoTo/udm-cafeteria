@@ -1,9 +1,19 @@
 import * as React from 'react';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import { Typography, Button, FormControl } from '@mui/material';
-import TextInput from '@/Components/TextInput';
+import { Typography, Button, FormControl, TextField, InputLabel, Select, MenuItem } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { grey } from '@mui/material/colors';
 import axios from 'axios';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: grey[900], // Set the primary color to white
+    },
+  },
+});
+
 
 export default function CreateAdminForm({addedSnackbar, addedSnackbarMessage}) {
   const [name, setName] = useState('');
@@ -50,34 +60,32 @@ export default function CreateAdminForm({addedSnackbar, addedSnackbarMessage}) {
 
 
   return (
+    <ThemeProvider theme={theme}>
     <Box sx={{ minWidth: 120, marginTop: "30px", maxWidth: "600px", marginX: "auto" }}>
       <FormControl fullWidth onSubmit={handleSubmit} id='addAdminForm'>
-        <Typography sx={{marginTop:"8px", color: "white"}}>Name: </Typography>
-        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+        <TextField id="outlined-basic" label="Name" variant="outlined" value={name} onChange={(e) => setName(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Email: </Typography>
-        <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
+        <TextField id="outlined-basic" label="Email" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Password: </Typography>
-        <TextInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <TextField id="outlined-basic" label="Password" variant="outlined" value={password} onChange={(e) => setPassword(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Sex: </Typography>
-        <select
-        style={{border: "1px solid lightgrey", borderRadius: "5px"}}
-            id="sex"
-            name="sex"
-            className="mt-1 block w-full"
-            required
+        <FormControl fullWidth sx={{ marginTop: '16px', color: 'white' }}>
+        <InputLabel id="demo-simple-select-label">Sex</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label="Sex"
             value={sex}
             onChange={(e) => setSex(e.target.value)}
-        >
-            <option value="" style={{color: "grey"}}>Select Sex</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-        </select>
+          >
+            <MenuItem value={"Male"}>Male</MenuItem>
+            <MenuItem value={"Female"}>Female</MenuItem>
+          </Select>
+        </FormControl>
 
         <Button onClick={handleSubmit} variant='contained' sx={{width: "100%", maxWidth: "300px", margin: "auto", marginTop: "2rem"}}>Submit</Button>
       </FormControl>
     </Box>
+    </ThemeProvider>
   );
 }

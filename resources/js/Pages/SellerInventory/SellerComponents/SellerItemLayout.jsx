@@ -27,7 +27,7 @@ export default function SellerItemLayout({quantity: initialQuantity, name, price
     const addSubtractItem = () => {
         return (
             <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", flexGrow: 0, gap: "5px", width: "100%", position: "absolute", left: 0, top: "50%", padding: "0 5%"}}>
-            <Button onClick={(event) => subButtonClicked(event)} variant='contained' sx={{background: blueGrey[500]}}>-</Button>
+            <Button onClick={(event) => subButtonClicked(event)} variant='contained' sx={{background: grey[800]}}>-</Button>
             </div>
         )
     }

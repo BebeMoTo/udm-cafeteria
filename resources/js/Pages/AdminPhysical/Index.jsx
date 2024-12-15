@@ -1,21 +1,30 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { blueGrey } from '@mui/material/colors';
+import { blueGrey, grey } from '@mui/material/colors';
 import TextInput from '@/Components/TextInput';
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Typography,
+import { 
+  Typography, 
+  Button, 
+  TextField, 
+  InputLabel, 
+  Select, 
+  MenuItem, 
+  FormControl 
 } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: grey[900], // Set the primary color to white
+    },
+  },
+});
 
 export default function Index({ auth, stores }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -136,6 +145,7 @@ export default function Index({ auth, stores }) {
   
 
   return (
+    <ThemeProvider theme={theme}>
     <Authenticated
       user={auth.user}
       header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Store Information</h2>}
@@ -154,7 +164,7 @@ export default function Index({ auth, stores }) {
             }}
           >
             <FormControl margin="dense">
-              <InputLabel id="store-label" sx={{ color: 'white' }}>
+              <InputLabel id="store-label" sx={{ color: 'black' }}>
                 Store
               </InputLabel>
               <Select
@@ -163,7 +173,7 @@ export default function Index({ auth, stores }) {
                 value={selectedStore}
                 onChange={(e) => setSelectedStore(e.target.value)}
                 label="Items"
-                sx={{ minWidth: '200px', color: 'white', border: '1px solid grey' }}
+                sx={{ minWidth: '200px', color: 'black', border: '1px solid grey' }}
               >
                 {stores.map((store) => (
                   <MenuItem key={store.id} value={store}>
@@ -178,8 +188,9 @@ export default function Index({ auth, stores }) {
           {/* This is the form */}
         <div className='adminPhysicalPaymentContainer'>
         <div>
+        <Typography>Batch Order</Typography>
         <FormControl margin="dense">
-              <InputLabel id="store-label" sx={{ color: 'white' }}>
+              <InputLabel id="store-label" sx={{ color: 'black' }}>
                 Items
               </InputLabel>
               <Select
@@ -197,13 +208,11 @@ export default function Index({ auth, stores }) {
                 ))}
               </Select>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Quantity: </Typography>
-              <TextInput value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+              <TextField id="outlined-basic" label="Quantity" variant="outlined"  value={quantity} onChange={(e) => setQuantity(e.target.value)} sx={{ marginTop: '16px', color: 'white' }}/>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Total Price: </Typography>
-              <TextInput value={totalPrice} onChange={(e) => setTotalPrice(e.target.value)} />
+              <TextField id="outlined-basic" label="Total Price" variant="outlined" value={totalPrice} onChange={(e) => setTotalPrice(e.target.value)} sx={{ marginTop: '16px', color: 'white' }}/>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Date: </Typography>
+              <Typography sx={{ marginTop: '16px', color: 'black' }}>Date: </Typography>
                 <input type="datetime-local"  value={created_at}  onChange={(e) => setCreated_at(e.target.value)}/>
 
                 <Button variant='contained' sx={{marginTop: "16px", backgroundColor: blueGrey[800]}} onClick={handleSubmitOrder}>
@@ -213,8 +222,9 @@ export default function Index({ auth, stores }) {
         </div>
 
         <div>
+        <Typography>Iterated Order</Typography>
         <FormControl margin="dense">
-              <InputLabel id="store-label" sx={{ color: 'white' }}>
+              <InputLabel id="store-label" sx={{ color: 'black' }}>
                 Items
               </InputLabel>
               <Select
@@ -223,7 +233,7 @@ export default function Index({ auth, stores }) {
                 value={selectedItemIndi}
                 onChange={(e) => setSelectedItemIndi(e.target.value)}
                 label="Store"
-                sx={{ minWidth: '200px', color: 'white', border: '1px solid grey' }}
+                sx={{ minWidth: '200px', color: 'black', border: '1px solid grey' }}
               >
                 {selectedStore.items.map((item) => (
                   <MenuItem key={item.id} value={item}>
@@ -232,13 +242,11 @@ export default function Index({ auth, stores }) {
                 ))}
               </Select>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Quantity: </Typography>
-              <TextInput value={quantityIndi} onChange={(e) => setQuantityIndi(e.target.value)} />
+              <TextField id="outlined-basic" label="Quantity" variant="outlined" value={quantityIndi} onChange={(e) => setQuantityIndi(e.target.value)} sx={{ marginTop: '16px', color: 'black' }}/>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Total Price: </Typography>
-              <TextInput value={totalPriceIndi} onChange={(e) => setTotalPriceIndi(e.target.value)} />
+              <TextField id="outlined-basic" label="Individual Price" variant="outlined" value={totalPriceIndi} onChange={(e) => setTotalPriceIndi(e.target.value)} sx={{ marginTop: '16px', color: 'white' }}/>
 
-              <Typography sx={{ marginTop: '16px', color: 'white' }}>Date: </Typography>
+              <Typography sx={{ marginTop: '16px', color: 'black' }}>Date: </Typography>
                 <input type="datetime-local"  value={created_atIndi}  onChange={(e) => setCreated_atIndi(e.target.value)}/>
 
                 <Button variant='contained' sx={{marginTop: "16px", backgroundColor: blueGrey[800]}} onClick={handleSubmitOrderIndi}>
@@ -279,5 +287,6 @@ export default function Index({ auth, stores }) {
         }
       />
     </Authenticated>
+    </ThemeProvider>
   );
 }

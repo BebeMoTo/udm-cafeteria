@@ -45,7 +45,7 @@ const DailyOrdersChart = ({ data }) => {
       <div id="daily-orders-chart" style={{ width: '100%', height: '400px', margin: 'auto' }} />
 
       {/* Toggle Button for Table Visibility */}
-      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+      <div style={{ textAlign: 'right', marginTop: '16px', marginBottom: '32px' }}>
         <button 
           onClick={toggleTableVisibility} 
           style={{
@@ -65,7 +65,7 @@ const DailyOrdersChart = ({ data }) => {
       {isTableVisible && (
         <div style={{ marginTop: '16px', width: '100%', overflow: 'auto' }}>
           <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>Daily Orders Data Interpretation</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', margin: 'auto', textAlign: 'left' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', margin: 'auto', textAlign: 'left', marginBottom: '2rem', }}>
             <thead>
               <tr style={{ backgroundColor: '#f4f4f4' }}>
                 <th style={{ border: '1px solid #ddd', padding: '8px' }}>Date</th>
@@ -79,10 +79,10 @@ const DailyOrdersChart = ({ data }) => {
               {data.map((item, index) => (
                 <tr key={index} style={index % 2 === 0 ? { backgroundColor: '#f9f9f9' } : {}}>
                   <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.date}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.eBalance}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Paymongo}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.PhysicalCash}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.eBalance.toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Paymongo.toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.PhysicalCash.toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

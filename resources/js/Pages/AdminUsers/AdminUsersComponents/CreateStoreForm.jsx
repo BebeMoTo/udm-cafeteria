@@ -1,11 +1,20 @@
 import * as React from 'react';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import { Typography, Button } from '@mui/material';
+import { Typography, Button, TextField } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormControl from '@mui/material/FormControl';
+import { grey } from '@mui/material/colors';
 import TextInput from '@/Components/TextInput';
 import axios from 'axios';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: grey[900], // Set the primary color to white
+    },
+  },
+});
 
 export default function CreateStoreForm({addedSnackbar, addedSnackbarMessage}) {
   const [name, setName] = useState('');
@@ -51,21 +60,15 @@ export default function CreateStoreForm({addedSnackbar, addedSnackbarMessage}) {
   return (
     <Box sx={{ minWidth: 120, marginTop: "30px", maxWidth: "600px", marginX: "auto"  }}>
       <FormControl fullWidth id='addStoreForm'>
-        <Typography sx={{marginTop:"8px", color: "white"}}>Name: </Typography>
-        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+        <TextField id="outlined-basic" label="Name" variant="outlined" value={name} onChange={(e) => setName(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Description: </Typography>
-        <TextInput value={description} onChange={(e) => setDescription(e.target.value)} />
+        <TextField id="outlined-basic" label="Description" variant="outlined" value={description} onChange={(e) => setDescription(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Stall No: </Typography>
-        <TextInput value={stallNo} onChange={(e) => setStallNo(e.target.value)} />
+        <TextField id="outlined-basic" label="Stall No." variant="outlined" value={stallNo} onChange={(e) => setStallNo(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Additional Fee: </Typography>
-        <TextInput value={additionalFee} onChange={(e) => setAdditionalFee(e.target.value)} />
+        <TextField id="outlined-basic" label="Additional Fee" variant="outlined" value={additionalFee} onChange={(e) => setAdditionalFee(e.target.value)}  sx={{marginTop:"8px", color: "white"}}/>
 
-        <Typography sx={{marginTop:"8px", color: "white"}}>Balance: </Typography>
-        <TextInput value={balance} onChange={(e) => setBalance(e.target.value)} />
-
+        <TextField id="outlined-basic" label="Balance" variant="outlined" value={balance} onChange={(e) => setBalance(e.target.value)} sx={{marginTop:"8px", color: "white"}}/>
 
         <Button onClick={handleSubmit} variant='contained' sx={{width: "100%", maxWidth: "300px", margin: "auto", marginTop: "2rem"}}>Submit</Button>
       </FormControl>

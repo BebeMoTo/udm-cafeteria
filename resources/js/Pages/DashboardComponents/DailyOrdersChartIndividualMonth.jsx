@@ -47,7 +47,7 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
       />
 
       {/* Toggle Button */}
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+      <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <button
           onClick={() => setShowTable(!showTable)} // Toggle table visibility
           style={{
@@ -73,6 +73,7 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
             borderCollapse: 'collapse',
             margin: 'auto',
             textAlign: 'left',
+            marginBottom: '2rem',
           }}
         >
           <thead>
@@ -88,10 +89,10 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
             {data.map((item, index) => (
               <tr key={index} style={index % 2 === 0 ? { backgroundColor: '#f9f9f9' } : {}}>
                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.date}</td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount}</td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.eBalance}</td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Paymongo}</td>
-                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.PhysicalCash}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.total_amount.toFixed(2)}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.eBalance.toFixed(2)}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Paymongo.toFixed(2)}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.PhysicalCash.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

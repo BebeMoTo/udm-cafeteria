@@ -25,7 +25,7 @@ import AdminUpdateBalance from './AdminUsersComponents/AdminUpdateBalance';
 const theme = createTheme({
   palette: {
     primary: {
-      main: grey[50], // Set the primary color to white
+      main: grey[900], // Set the primary color to white
     },
   },
 });
@@ -311,7 +311,7 @@ const Index = ({ auth, users: initialUsers }) => {
           <div className="mx-auto px-3 sm:px-6 lg:px-8">
             <div style={{ display: "flex", gap: "16px" }}>
               <TextField
-                sx={{ width: "60%", color: "black", border: "1px solid white", borderRadius: "5px" }}
+                sx={{ width: "60%", color: "black", borderRadius: "5px" }}
                 label="Search by Name or Email"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -320,12 +320,12 @@ const Index = ({ auth, users: initialUsers }) => {
                 }}
                 fullWidth
                 variant="outlined"
-                style={{ marginBottom: '1rem', color: "white" }}
+                style={{ marginBottom: '1rem', color: "black" }}
               />
 
               {/* Sort Select */}
               <Select
-                sx={{ width: "20%", color: "white", border: "1px solid white" }}
+                sx={{ width: "20%", color: "black" }}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 fullWidth
@@ -344,7 +344,7 @@ const Index = ({ auth, users: initialUsers }) => {
                 onChange={(e) => setUsertype(e.target.value)} // Handle the user type selection
                 fullWidth
                 variant="outlined"
-                style={{ marginBottom: '1rem', color: "white", border: "1px solid white" }}
+                style={{ marginBottom: '1rem', color: "black"}}
               >
                 <MenuItem value="All"><CheckIcon /> All</MenuItem>
                 <MenuItem value="Admin"><AdminPanelSettingsIcon /> Admin</MenuItem>

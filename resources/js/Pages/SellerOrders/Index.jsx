@@ -1,273 +1,224 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import OrderSelectSort from '../Orders/OrdersComponents/OrderSelectSort';
 import SellerOrdersCardPending from './SellerOrdersComponents/SellerOrdersCardPending';
 import { Button, Typography, Snackbar, Alert } from "@mui/material";
-import { blueGrey } from '@mui/material/colors';
+import { blueGrey, grey } from '@mui/material/colors';
 
-const Index = ({auth, orders: initialOrders}) => {
-    const { csrfToken } = usePage().props; 
+const Index = ({ auth, orders: initialOrders }) => {
+    const { csrfToken } = usePage().props;
     const [orders, setOrders] = useState(initialOrders);
     const [selectedStatus, setSelectedStatus] = useState('Pending');
     const handleStatusChange = (newStatus) => setSelectedStatus(newStatus);
     const [loadingOrderId, setLoadingOrderId] = useState(null); // Track loading state for cancellation
 
-    console.log(initialOrders)
-    //Sorting the items
+    // Sorting function for orders by user_id and timestamp
+    const sortOrdersByUserAndTime = (orders, timeKey) => {
+        return orders
+            .sort((a, b) => {
+                if (a.user_id === b.user_id) {
+                    return new Date(b[timeKey]) - new Date(a[timeKey]);
+                }
+                return a.user_id - b.user_id;
+            });
+    };
+
+    // Sorting the orders based on status and user
     const pendingOrders = useMemo(() => 
-        orders
-            .filter(order => order.status === 'Pending')
-            .sort((a, b) => new Date(b.pending_time) - new Date(a.pending_time)), 
+        sortOrdersByUserAndTime(
+            orders.filter(order => order.status === 'Pending'),
+            'pending_time'
+        ),
         [orders]
     );
+
     const acceptedOrders = useMemo(() => 
-        orders
-            .filter(order => order.status === 'Accepted')
-            .sort((a, b) => new Date(b.accepted_time) - new Date(a.accepted_time)), 
+        sortOrdersByUserAndTime(
+            orders.filter(order => order.status === 'Accepted'),
+            'accepted_time'
+        ),
         [orders]
     );
-    //Just added
-    const readyOrders = useMemo(() => orders.filter(order => order.status === 'Ready').sort((a, b) => new Date(b.ready_time) - new Date(a.ready_time)), [orders]);
-    
+
+    const readyOrders = useMemo(() => 
+        sortOrdersByUserAndTime(
+            orders.filter(order => order.status === 'Ready'),
+            'ready_time'
+        ),
+        [orders]
+    );
+
     const claimedOrders = useMemo(() => 
-        orders
-            .filter(order => order.status === 'Claimed')
-            .sort((a, b) => new Date(b.claimed_time) - new Date(a.claimed_time)), 
+        sortOrdersByUserAndTime(
+            orders.filter(order => order.status === 'Claimed'),
+            'claimed_time'
+        ),
         [orders]
     );
+
     const cancelledOrders = useMemo(() => 
-        orders
-            .filter(order => order.status === 'Cancelled')
-            .sort((a, b) => new Date(b.cancelled_time) - new Date(a.cancelled_time)), 
+        sortOrdersByUserAndTime(
+            orders.filter(order => order.status === 'Cancelled'),
+            'cancelled_time'
+        ),
         [orders]
     );
-    //End of sorting the items
 
-
+    // Cancel order function
     const cancelOrder = (orderId) => {
-      setLoadingOrderId(orderId); // Set loading state
-      axios.post(`/orders/${orderId}/cancel`, {}, {
-          headers: {
-              'X-CSRF-TOKEN': csrfToken,
+        setLoadingOrderId(orderId);
+        axios.post(`/orders/${orderId}/cancel`, {}, {
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+            }
+        })
+        .then(response => {
+            console.log('Order cancelled:', response.data);
+            setOrders(prevOrders => 
+                prevOrders.map(order => 
+                    order.id === orderId ? { ...order, status: 'Cancelled' } : order
+                )
+            );
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error cancelling order:', error);
+        })
+        .finally(() => {
+            setLoadingOrderId(null);
+        });
+    };
+
+    // Accept order function
+    const acceptOrder = (orderId) => {
+        setLoadingOrderId(orderId);
+        axios.post(`/orders/${orderId}/accept`, {}, {
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+            }
+        })
+        .then(response => {
+            console.log('Order accepted:', response.data);
+            setOrders(prevOrders => 
+                prevOrders.map(order => 
+                    order.id === orderId ? { ...order, status: 'Accepted' } : order
+                )
+            );
+        })
+        .catch(error => {
+            console.error('Error accepting order:', error);
+        })
+        .finally(() => {
+            setLoadingOrderId(null);
+        });
+    };
+
+    // Ready order function
+    const readyOrder = (orderId) => {
+        setLoadingOrderId(orderId);
+        axios.post(`/orders/${orderId}/ready`, {}, {
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+            }
+        })
+        .then(response => {
+            console.log('Order Ready:', response.data);
+            setOrders(prevOrders => 
+                prevOrders.map(order => 
+                    order.id === orderId ? { ...order, status: 'Ready' } : order
+                )
+            );
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error making order ready:', error);
+        })
+        .finally(() => {
+            setLoadingOrderId(null);
+        });
+    };
+
+    const groupedOrders = useMemo(() => {
+      return orders.reduce((groups, order) => {
+          const userId = order.user?.id || 'unknown';
+          const userName = order.user?.name || 'Unknown';
+          if (!groups[userId]) {
+              groups[userId] = { userName, orders: [] };
           }
-      })
-      .then(response => {
-          console.log('Order cancelled:', response.data);
-          // Update the state to move the order
-          setOrders(prevOrders => 
-              prevOrders.map(order => 
-                  order.id === orderId ? { ...order, status: 'Cancelled' } : order
-              )
-          );
-          const timer = setTimeout(() => {
-            window.location.reload();  // Refresh the page
-          }, 2000); 
-      })
-      .catch(error => {
-          console.error('Error cancelling order:', error);
-      })
-      .finally(() => {
-          setLoadingOrderId(null); // Reset loading state
-      });
-  };
+          groups[userId].orders.push(order);
+          return groups;
+      }, {});
+  }, [orders]);
+  
+    return (
+        <AuthenticatedLayout
+            user={auth.user}
+            header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Orders</h2>}
+            type={auth.user.type}
+            balance={auth.user.balance}
+            storeBalance={auth.user.store.balance}
+        >
+            <Head title="Orders"/>
+            <OrderSelectSort selectedStatus={selectedStatus} onStatusChange={handleStatusChange} /><br />
 
-  //Accept order
-  const acceptOrder = (orderId) => {
-    setLoadingOrderId(orderId); // Set loading state
-    axios.post(`/orders/${orderId}/accept`, {}, {
-        headers: {
-            'X-CSRF-TOKEN': csrfToken,
-        }
-    })
-    .then(response => {
-        console.log('Order accepted:', response.data);
-        // Update the state to reflect the order's new status
-        setOrders(prevOrders => 
-            prevOrders.map(order => 
-                order.id === orderId ? { ...order, status: 'Accepted' } : order
-            )
-        );
-    })
-    .catch(error => {
-        console.error('Error accepting order:', error);
-    })
-    .finally(() => {
-        setLoadingOrderId(null); // Reset loading state
-    });
-};
+            <div>
+            {Object.entries(groupedOrders)
+    .filter(([_, { orders }]) =>
+        orders.some(order => order.status === selectedStatus) // Check if any order matches the selected status
+    )
+    .map(([userId, { userName, orders }]) => (
+    <div key={userId} style={{ marginBottom: "16px" }}>
+        <Typography variant="h6" color="primary" sx={{marginLeft: "16px", color: grey[800]}}>
+            {userName}'s Orders
+        </Typography>
+        {orders
+            .filter(order => order.status === selectedStatus).map(order => (
+                <div key={order.id} style={{ marginBottom: "8px" }}>
+                    <SellerOrdersCardPending order={order}>
+                        {selectedStatus === "Pending" && (
+                            <>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => cancelOrder(order.id)}
+                                    disabled={loadingOrderId === order.id}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    sx={{ backgroundColor: blueGrey[800] }}
+                                    onClick={() => acceptOrder(order.id)}
+                                    disabled={loadingOrderId === order.id}
+                                >
+                                    Accept
+                                </Button>
+                            </>
+                        )}
+                        {selectedStatus === "Accepted" && (
+                            <Button
+                                variant="contained"
+                                sx={{ backgroundColor: blueGrey[800] }}
+                                onClick={() => readyOrder(order.id)}
+                                disabled={loadingOrderId === order.id}
+                            >
+                                Make Ready
+                            </Button>
+                        )}
+                    </SellerOrdersCardPending>
+                </div>
+            ))}
+    </div>
+))}
 
-
-  //Ready order
-  const readyOrder = (orderId) => {
-    setLoadingOrderId(orderId); // Set loading state
-    axios.post(`/orders/${orderId}/ready`, {}, {
-        headers: {
-            'X-CSRF-TOKEN': csrfToken,
-        }
-    })
-    .then(response => {
-        console.log('Order Ready:', response.data);
-        // Update the state to reflect the order's new status
-        setOrders(prevOrders => 
-            prevOrders.map(order => 
-                order.id === orderId ? { ...order, status: 'Ready' } : order
-            )
-        );
-        const timer = setTimeout(() => {
-          window.location.reload(); // Refresh the page
-        }, 2000); 
-    })
-    .catch(error => {
-        console.error('Error making order ready:', error);
-    })
-    .finally(() => {
-        setLoadingOrderId(null); // Reset loading state
-    });
-};
-
-
-  return (
-    <AuthenticatedLayout
-    user={auth.user}
-    header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Orders</h2>}
-    type={auth.user.type}
-    balance={auth.user.balance}
-    storeBalance={auth.user.store.balance}
-    >
-        <Head title="Orders"/>
-        <OrderSelectSort selectedStatus={selectedStatus} onStatusChange={handleStatusChange} />
-
-
-
-
-        <div style={{padding: ""}}>
-                {selectedStatus === "Pending" ? 
-                (  pendingOrders.length !== 0 ? (
-                    pendingOrders.map(order => (
-                      <div key={order.id} style={{ marginBottom: "2px", position: "relative" }}>
-                        <SellerOrdersCardPending order={order}>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => cancelOrder(order.id)} 
-                            disabled={loadingOrderId === order.id} // Disable button if loading
-                          >
-                            Cancel
-                          </Button>
-
-                          <Button
-                            variant="contained"
-                            sx={{backgroundColor: blueGrey[800]}}
-                            onClick={() => acceptOrder(order.id)} 
-                            disabled={loadingOrderId === order.id} // Disable button if loading
-                          >
-                            Accept
-                          </Button>
-                        </SellerOrdersCardPending>
-                      </div>
-                    ))) : 
-                    (
-                        <Alert
-                          variant="outlined"
-                          severity="info"
-                          sx={{ width: "90%", margin: "auto", marginTop: "16px"  }}
-                        >
-                          You don't have any pending orders right now
-                        </Alert>
-                      )
-                    ) : null}
-
-                {selectedStatus === "Accepted" ? 
-                (  acceptedOrders.length !== 0 ? (
-                    acceptedOrders.map(order => (
-                    <div key={order.id} style={{marginBottom: "2px"}}>
-                        <SellerOrdersCardPending order={order}>
-                          {/*<p style={{fontSize: "12px"}}>Time Accepted: {order.accepted_time}</p>*/}
-                          <Button
-                            variant="contained"
-                            sx={{backgroundColor: blueGrey[800]}}
-                            onClick={() => readyOrder(order.id)} 
-                            disabled={loadingOrderId === order.id} // Disable button if loading
-                          >
-                            Make Ready
-                          </Button>
-                        </SellerOrdersCardPending>
-                    </div>
-                    ))) : 
-                    (
-                        <Alert
-                          variant="outlined"
-                          severity="info"
-                          sx={{ width: "90%", margin: "auto", marginTop: "16px"   }}
-                        >
-                          Nothing to show here.
-                        </Alert>
-                      )
-                    ) : null}
-
-                {selectedStatus === "Ready" ? 
-                (  readyOrders.length !== 0 ? (
-                    readyOrders.map(order => (
-                    <div key={order.id} style={{marginBottom: "2px"}}>
-                        <SellerOrdersCardPending order={order}>
-                          <p style={{fontSize: "12px"}}>Time Ready: {order.ready_time}</p>
-                        </SellerOrdersCardPending>
-                    </div>
-                    ))) : 
-                    (
-                        <Alert
-                          variant="outlined"
-                          severity="info"
-                          sx={{ width: "90%", margin: "auto", marginTop: "16px"   }}
-                        >
-                          Nothing to show here.
-                        </Alert>
-                      )
-                    ) : null}
-
-                {selectedStatus === "Claimed" ? 
-                (  claimedOrders.length !== 0 ? (
-                    claimedOrders.map(order => (
-                    <div key={order.id} style={{marginBottom: "2px"}}>
-                        <SellerOrdersCardPending order={order}>
-                          <p style={{fontSize: "12px"}}>Time Claimed: {order.claimed_time}</p>
-                        </SellerOrdersCardPending>
-                    </div>
-                    ))) : 
-                    (
-                        <Alert
-                          variant="outlined"
-                          severity="info"
-                          sx={{ width: "90%", margin: "auto", marginTop: "16px"   }}
-                        >
-                          Nothing to show here.
-                        </Alert>
-                      )
-                    ) : null}
-
-                {selectedStatus === "Cancelled" ? 
-                (  cancelledOrders.length !== 0 ? (
-                    cancelledOrders.map(order => (
-                        <div key={order.id} style={{marginBottom: "2px"}}>
-                        <SellerOrdersCardPending order={order}>
-                        <p style={{fontSize: "12px"}}>Time Cancelled: {order.cancelled_time}</p>
-                        </SellerOrdersCardPending>
-                    </div>
-                    ))) : 
-                    (
-                        <Alert
-                          variant="outlined"
-                          severity="info"
-                          sx={{ width: "90%", margin: "auto", marginTop: "16px" }}
-                        >
-                          Nothing to show here.
-                        </Alert>
-                      )
-                    ) : null}
             </div>
-    </AuthenticatedLayout>
-  )
-}
+        </AuthenticatedLayout>
+    );
+};
 
-export default Index
+export default Index;

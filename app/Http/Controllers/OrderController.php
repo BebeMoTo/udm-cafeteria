@@ -666,6 +666,7 @@ public function generalCancel(Request $request)
         // ->whereIn('status', ['Accepted','Ready', 'Claimed'])
         // ->sum('total_price');
 
+        //FOR CARDS OF SELLER
         $salesToday = [
             // Actual sales for today
             'sales_today' => Order::where('store_id', $storeId)
@@ -740,7 +741,6 @@ public function generalCancel(Request $request)
         // Add predicted sales and percentage comparison to the result
         $salesToday['predicted_sales'] = $predictedSalesToday;
         $salesToday['percentage_to_prediction'] = $percentageOfPrediction;
-
         
 
         // Total Sales This Month
@@ -763,6 +763,80 @@ public function generalCancel(Request $request)
 
 
         //for admin
+        //FOR CARDS OF ADMIN
+        $salesTodayAdmin = [
+            // Actual sales for today across all stores
+            'sales_today' => Order::whereDate('pending_time', Carbon::today())
+                ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+                ->sum('total_price'),
+        
+            // Actual sales for yesterday across all stores
+            'sales_yesterday' => Order::whereDate('pending_time', Carbon::yesterday())
+                ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+                ->sum('total_price'),
+        ];
+        
+        // Percentage change from yesterday to today for admin
+        $percentageChangeAdmin = 0;
+        if ($salesTodayAdmin['sales_yesterday'] > 0) {
+            $percentageChangeAdmin = (($salesTodayAdmin['sales_today'] - $salesTodayAdmin['sales_yesterday']) / $salesTodayAdmin['sales_yesterday']) * 100;
+        }
+        $salesTodayAdmin['percentage_change'] = $percentageChangeAdmin;
+        
+        // Predict today's sales for admin based on the past two weeks
+        $pastTwoWeeksSalesAdmin = Order::whereBetween('pending_time', [Carbon::now()->subDays(14), Carbon::yesterday()])
+            ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+            ->select(
+                DB::raw('DATE(pending_time) as date'),
+                DB::raw('SUM(total_price) as total_sales')
+            )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+        
+        // Prepare data for regression
+        $daysAdmin = [];
+        $salesAdmin = [];
+        foreach ($pastTwoWeeksSalesAdmin as $index => $record) {
+            $daysAdmin[] = $index + 1; // Sequential day numbers (1, 2, ..., 14)
+            $salesAdmin[] = $record->total_sales;
+        }
+        
+        // Regression logic for admin
+        $nAdmin = count($daysAdmin);
+        $predictedSalesTodayAdmin = 0;
+        
+        if ($nAdmin >= 2) {
+            $sumXAdmin = array_sum($daysAdmin);
+            $sumYAdmin = array_sum($salesAdmin);
+            $sumXYAdmin = array_sum(array_map(fn($x, $y) => $x * $y, $daysAdmin, $salesAdmin));
+            $sumX2Admin = array_sum(array_map(fn($x) => $x * $x, $daysAdmin));
+        
+            $denominatorAdmin = ($nAdmin * $sumX2Admin - $sumXAdmin * $sumXAdmin);
+        
+            // Only calculate slope and intercept if the denominator is not zero
+            if ($denominatorAdmin != 0) {
+                $slopeAdmin = ($nAdmin * $sumXYAdmin - $sumXAdmin * $sumYAdmin) / $denominatorAdmin;
+                $interceptAdmin = ($sumYAdmin - $slopeAdmin * $sumXAdmin) / $nAdmin;
+        
+                // Predict today's sales (day 15)
+                $predictedSalesTodayAdmin = $slopeAdmin * ($nAdmin + 1) + $interceptAdmin;
+            }
+        }
+        
+        // Ensure no negative predictions for admin
+        $predictedSalesTodayAdmin = max(0, $predictedSalesTodayAdmin);
+        
+        // Calculate the percentage of actual sales compared to the predicted sales for admin
+        $percentageOfPredictionAdmin = $predictedSalesTodayAdmin > 0
+            ? (($salesTodayAdmin['sales_today'] - $predictedSalesTodayAdmin) / $predictedSalesTodayAdmin) * 100
+            : 0;
+        
+        // Add predicted sales and percentage comparison to the admin result
+        $salesTodayAdmin['predicted_sales'] = $predictedSalesTodayAdmin;
+        $salesTodayAdmin['percentage_to_prediction'] = $percentageOfPredictionAdmin;
+
+        // Overall sales chart
         $overallDailyIncome = Order::where('pending_time', '>=', Carbon::today()->subDays(6)) // Last 7 days including today
         ->whereIn('status', ['Accepted', 'Ready', 'Claimed']) // Include specific statuses
         ->select(
@@ -945,15 +1019,16 @@ public function generalCancel(Request $request)
             'userTopItems' => $userTopItems, // Include user's top items in the response
             'recommendedItems' => $recommendedItems,
             'dailyOrders' => $dailyOrders,
+
             'dailyIncome' => $dailyIncome,
             'storeTopSellingItems' => $storeTopSellingItems,
-            
             'salesToday' => $salesToday,
             'salesThisMonth' => $salesThisMonth,
             //'pendingOrders' => $pendingOrders,
             //'acceptedOrders' => $acceptedOrders,
 
             //admin
+            'salesTodayAdmin' => $salesTodayAdmin,
             'overallDailyIncome' => $overallDailyIncome,
             'overallMonthlyIncome' => $overallMonthlyIncome,
             'overallTopSellingItems' => $overallTopSellingItems,

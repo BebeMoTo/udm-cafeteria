@@ -5,10 +5,20 @@ import CreateSelect from './AdminUsersComponents/CreateSelect';
 import CreateSellerForm from './AdminUsersComponents/CreateSellerForm';
 import CreateAdminForm from './AdminUsersComponents/CreateAdminForm';
 import CreateStoreForm from './AdminUsersComponents/CreateStoreForm';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { grey } from '@mui/material/colors';
 
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: grey[900], // Set the primary color to white
+    },
+  },
+});
 
 const Create = ({auth, stores}) => {
   const [open, setOpen] = React.useState(false);
@@ -45,6 +55,7 @@ const Create = ({auth, stores}) => {
   const [create, setCreate] = React.useState('Seller');
 
   return (
+    <ThemeProvider theme={theme}>
     <AuthenticatedLayout
     user={auth.user}
     header={<h2 className="font-thin text-xl text-gray-800 leading-tight">Manage Accounts</h2>}
@@ -74,6 +85,7 @@ const Create = ({auth, stores}) => {
       />
     </div>
     </AuthenticatedLayout>
+    </ThemeProvider>
   )
 }
 
