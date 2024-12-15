@@ -641,6 +641,8 @@ public function generalCancel(Request $request)
             ];
         });
 
+
+
         //top items on your shop
         $storeTopSellingItems = Order::where('store_id', $storeId) // Filter by store ID
         ->where('created_at', '>=', Carbon::today()->subDays(6)) // Past 7 days
@@ -665,24 +667,81 @@ public function generalCancel(Request $request)
         // ->sum('total_price');
 
         $salesToday = [
+            // Actual sales for today
             'sales_today' => Order::where('store_id', $storeId)
                 ->whereDate('pending_time', Carbon::today())
                 ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
                 ->sum('total_price'),
         
+            // Actual sales for yesterday
             'sales_yesterday' => Order::where('store_id', $storeId)
                 ->whereDate('pending_time', Carbon::yesterday())
                 ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
                 ->sum('total_price'),
         ];
         
+        // Percentage change from yesterday to today
         $percentageChange = 0;
-        
-        // Calculate the percentage change if there are sales for yesterday
         if ($salesToday['sales_yesterday'] > 0) {
             $percentageChange = (($salesToday['sales_today'] - $salesToday['sales_yesterday']) / $salesToday['sales_yesterday']) * 100;
         }
         $salesToday['percentage_change'] = $percentageChange;
+        
+        // Predict today's sales based on the past two weeks
+        $pastTwoWeeksSales = Order::where('store_id', $storeId)
+            ->whereBetween('pending_time', [Carbon::now()->subDays(14), Carbon::yesterday()])
+            ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+            ->select(
+                DB::raw('DATE(pending_time) as date'),
+                DB::raw('SUM(total_price) as total_sales')
+            )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+        
+        // Prepare data for regression
+        $days = [];
+        $sales = [];
+        foreach ($pastTwoWeeksSales as $index => $record) {
+            $days[] = $index + 1; // Sequential day numbers (1, 2, ..., 14)
+            $sales[] = $record->total_sales;
+        }
+        
+        // Regression logic
+        $n = count($days);
+        $predictedSalesToday = 0;
+        
+        if ($n >= 2) {
+            $sumX = array_sum($days);
+            $sumY = array_sum($sales);
+            $sumXY = array_sum(array_map(fn($x, $y) => $x * $y, $days, $sales));
+            $sumX2 = array_sum(array_map(fn($x) => $x * $x, $days));
+        
+            $denominator = ($n * $sumX2 - $sumX * $sumX);
+        
+            // Only calculate slope and intercept if the denominator is not zero
+            if ($denominator != 0) {
+                $slope = ($n * $sumXY - $sumX * $sumY) / $denominator;
+                $intercept = ($sumY - $slope * $sumX) / $n;
+        
+                // Predict today's sales (day 15)
+                $predictedSalesToday = $slope * ($n + 1) + $intercept;
+            }
+        }
+        
+        // Ensure no negative predictions
+        $predictedSalesToday = max(0, $predictedSalesToday);
+        
+        // Calculate the percentage of actual sales compared to the predicted sales
+        $percentageOfPrediction = $predictedSalesToday > 0
+            ? (($salesToday['sales_today'] - $predictedSalesToday) / $predictedSalesToday) * 100
+            : 0;
+        
+        // Add predicted sales and percentage comparison to the result
+        $salesToday['predicted_sales'] = $predictedSalesToday;
+        $salesToday['percentage_to_prediction'] = $percentageOfPrediction;
+
+        
 
         // Total Sales This Month
         $salesThisMonth = Order::where('store_id', $storeId)
@@ -891,8 +950,8 @@ public function generalCancel(Request $request)
             
             'salesToday' => $salesToday,
             'salesThisMonth' => $salesThisMonth,
-            'pendingOrders' => $pendingOrders,
-            'acceptedOrders' => $acceptedOrders,
+            //'pendingOrders' => $pendingOrders,
+            //'acceptedOrders' => $acceptedOrders,
 
             //admin
             'overallDailyIncome' => $overallDailyIncome,
