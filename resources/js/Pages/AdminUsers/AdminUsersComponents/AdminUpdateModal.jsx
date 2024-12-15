@@ -63,10 +63,14 @@ const AdminUpdateModal = ({ open, user, onClose, onSubmit }) => {
             label="Department"
           >
             <MenuItem value="None">None</MenuItem>
-            <MenuItem value="CE">CE</MenuItem>
             <MenuItem value="CET">CET</MenuItem>
+            <MenuItem value="CHS">CHS</MenuItem>
+            <MenuItem value="CCJ">CCJ</MenuItem>
+            <MenuItem value="CE">CE</MenuItem>
             <MenuItem value="CBA">CBA</MenuItem>
             <MenuItem value="CAS">CAS</MenuItem>
+            <MenuItem value="CL">CL</MenuItem>
+            <MenuItem value="Faculty">Faculty</MenuItem>
           </Select>
         </FormControl>
       </DialogContent>

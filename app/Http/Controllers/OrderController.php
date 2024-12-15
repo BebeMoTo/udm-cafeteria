@@ -20,7 +20,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->type !== "Seller") {
+        if (auth()->user()->type === "User") {
             // Get the current authenticated user's ID
             $userId = auth()->id();
 
@@ -41,7 +41,7 @@ class OrderController extends Controller
                 'orders' => $orders
             ]);
         }
-        else{
+        elseif(auth()->user()->type === "Seller"){
             // Get the current authenticated user's ID
             $store_id = auth()->user()->store_id;
 
@@ -60,6 +60,28 @@ class OrderController extends Controller
         return Inertia::render('SellerOrders/Index', [
             'orders' => $orders
         ]);
+        }
+        elseif(auth()->user()->type === "Admin"){
+            // Admin: Fetch all orders without filtering by store_id
+            $orders = Order::with([
+                'item' => function ($query) {
+                    $query->select('id', 'name', 'price', 'quantity', 'state', 'image_path'); // Specify the columns you want
+                },
+                'user' => function ($query) {
+                    $query->select('id', 'name', 'department'); // Include user details
+                },
+                'store' => function($query) {
+                    $query->select('id', 'name', 'state', 'additional_fee'); // Specify columns for the store if needed
+                }
+            ])
+            ->orderBy('updated_at', 'desc')  // Order by 'pending_time' in descending order
+            ->get()
+            ->toArray();
+        
+            // Pass the data to the Inertia view
+            return Inertia::render('AdminOrders/Index', [
+                'allOrders' => $orders
+            ]);
         }
     }
 

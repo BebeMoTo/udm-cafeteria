@@ -79,6 +79,8 @@ Route::middleware(['web','auth', 'verified'])->group(function () {
     Route::get('/stores-physical', [StoreController::class, 'adminAdjustOrder'])->name('stores.physical');
     //admin physical payment
     Route::post('/orders/physical-payment', [OrderController::class, 'physicalPayment'])->name('orders.physicalPayment');
+    //all orders
+    Route::get('/all-orders', [OrderController::class, 'index'])->name('admin.orders.index');
 
     //paymongo
     Route::get('/paymongo-test', function (PayMongoService $payMongoService) {

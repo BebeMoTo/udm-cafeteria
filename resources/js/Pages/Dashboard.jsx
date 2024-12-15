@@ -16,7 +16,7 @@ import DailyOrdersChartOverallMonth from './DashboardComponents/DailyOrdersChart
 import DailyOrdersChartOverallYear from './DashboardComponents/DailyOrdersChartOverallYear';
 
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesTodayAdmin, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, 
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesTodayAdmin, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, allOrders,
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);

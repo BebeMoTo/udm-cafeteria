@@ -5,12 +5,12 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
+import dayjs from 'dayjs';
 
-export default function CardPending({order, children}) {
-  console.log(order.item.image_path);
+export default function CardPendingAllOrders({order, children}) {
   
   return (
-    <Card sx={{ display: 'flex', width: '95%', height: '170px', margin: "auto", marginTop: "8px" }}>
+    <Card sx={{ display: 'flex', width: '95%', height: '180px', margin: "auto", marginTop: "8px" }}>
       {/* Left side with image */}
       <CardMedia
         component="img"
@@ -30,13 +30,16 @@ export default function CardPending({order, children}) {
             {order.item.name}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-            Date ordered: {order.pending_time}
+            Date: { dayjs(order.pending_time).format('h:mm A, MMMM D, YYYY')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Quantity: {order.quantity}
           </Typography>
           <Typography gutterBottom variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
             Store: {order.store.name}
+          </Typography>
+          <Typography gutterBottom variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+            Ordered By: {order.user !== null ? order.user.name : "Unknown"}
           </Typography>
           <Typography gutterBottom variant="body2"  sx={{ fontSize: '0.8rem' }}>
            <b> Total Price: {'\u20B1'}{order.total_price} </b>

@@ -73,9 +73,6 @@ const Index = ({ auth, orders: initialOrders }) => {
             );
             setOpenSnack(true);
             setSnackbarMessage("Order cancelled successfully");
-            const timer = setTimeout(() => {
-              window.location.reload();  // Refresh the page
-            }, 2000); 
         })
         .catch(error => {
             console.error('Error cancelling order:', error);

@@ -131,9 +131,6 @@ const Index = ({ auth, orders: initialOrders }) => {
                     order.id === orderId ? { ...order, status: 'Ready' } : order
                 )
             );
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
         })
         .catch(error => {
             console.error('Error making order ready:', error);
