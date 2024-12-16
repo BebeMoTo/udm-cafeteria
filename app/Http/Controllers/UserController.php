@@ -19,7 +19,7 @@ class UserController extends Controller
         $sort = $request->input('sort', 'created_at'); // Default sort by created_at
     
         // Base query with eager loading of the related store
-        $query = User::with('store');
+        $query = User::with(['store', 'orders.item']);
     
         // Apply search filter
         if ($search) {

@@ -18,9 +18,11 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import EmailIcon from '@mui/icons-material/Email';
 import CheckIcon from '@mui/icons-material/Check';
 import AddCardIcon from '@mui/icons-material/AddCard';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import UserDeleteModal from './AdminUsersComponents/UserDeleteModal';
 import AdminUpdateModal from './AdminUsersComponents/AdminUpdateModal';
 import AdminUpdateBalance from './AdminUsersComponents/AdminUpdateBalance';
+import AdminUserOrdersModal from './AdminUsersComponents/AdminUserOrdersModal';
 
 const theme = createTheme({
   palette: {
@@ -49,6 +51,32 @@ const Index = ({ auth, users: initialUsers }) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openEditBalance, setOpenEditBalance] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null); // Store the user data to be edited
+
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserOrdersModal, setSelectedUserOrdersModal] = useState(null); // Track user selected for deletion
+
+  const handleShowOrders = (user) => {
+    setSelectedUserOrdersModal(user); // Set the user whose orders you want to view
+    setIsModalOpen(true);  // Open the modal
+  };
+
+  const handleCloseModalShowOrders = () => {
+    setIsModalOpen(false); // Close the modal
+    setSelectedUserOrdersModal(null); // Clear the selected user
+  };
+
+  const showOrders = (user) => {
+    return (
+      <Button
+        variant="contained"
+        sx={{ backgroundColor: grey[800], color: 'white', marginLeft: '8px' }}
+        onClick={() => handleShowOrders(user)}
+      >
+        {screenWidth <= 800 ? <ReceiptLongIcon /> : 'Orders'}
+      </Button>
+    );
+  };
 
   const addBalance = (user) => {
     return(
@@ -358,6 +386,7 @@ const Index = ({ auth, users: initialUsers }) => {
                 <AdminUserCard user={user} sellerStore={user.store}>
                   <div style={{display: "flex", justifyContent: "flex-end"}}>
                   {user.type !== "Seller" ? addBalance(user) : ""}
+                  {user.type === "User" ? showOrders(user) : ""}
                   <Button variant='contained' sx={{backgroundColor: "green", color: "white", marginLeft: "8px" }} onClick={() => handleEditClick(user)}>
                     {screenWidth <= 800 ? <EditIcon /> : "Edit Info"}
                   </Button>
@@ -411,6 +440,13 @@ const Index = ({ auth, users: initialUsers }) => {
           user={userToEdit}
           onClose={handleEditCloseBalance}
           onSubmit={handleUpdateBalance}
+        />
+
+          {/* AdminUserOrdersModal */}
+        <AdminUserOrdersModal
+          open={isModalOpen}
+          user={selectedUserOrdersModal}
+          onClose={handleCloseModalShowOrders}
         />
 
         {/* Snackbar for Success/Failure Messages */}

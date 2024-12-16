@@ -13,6 +13,10 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+use App\Mail\OrderAccepted;
+use App\Mail\OrderReady;
+use Illuminate\Support\Facades\Mail;
+
 class OrderController extends Controller
 {
     /**
@@ -489,6 +493,9 @@ public function generalCancel(Request $request)
             $order->accepted_time = now(); // Set the current time for the accepted_time field
             $order->save();
     
+             // Send email notification to the user
+            Mail::to($user->email)->send(new OrderAccepted($order, $user));
+
             // Return success response
             return response()->json(['message' => 'Order has been accepted successfully.']);
         } catch (\Exception $e) {
@@ -519,6 +526,9 @@ public function generalCancel(Request $request)
             $order->ready_time = now(); // Set the current time for the accepted_time field
             $order->save();
     
+            // Send notification email to the user
+            Mail::to($user->email)->send(new OrderReady($order, $user));
+
             // Return success response
             return response()->json(['message' => 'Order is now ready.']);
         } catch (\Exception $e) {
