@@ -650,6 +650,29 @@ public function generalCancel(Request $request)
         //for seller
         $storeId = User::where('id', $userId)->value('store_id');
 
+        $monthlyIncome = Order::where('store_id', $storeId)
+        ->where('created_at', '>=', Carbon::today()->subDays(30)) // Last 30 days
+        ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
+        ->select(
+            DB::raw('DATE(pending_time) as date'),
+            DB::raw('SUM(CASE WHEN payment_method = "eBalance" THEN total_price ELSE 0 END) as eBalance'),
+            DB::raw('SUM(CASE WHEN payment_method = "Paymongo" THEN total_price ELSE 0 END) as Paymongo'),
+            DB::raw('SUM(CASE WHEN payment_method = "Physical Cash" THEN total_price ELSE 0 END) as PhysicalCash'),
+            DB::raw('SUM(total_price) as total_amount')
+        )
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function ($order) {
+            return [
+                'date' => $order->date,
+                'eBalance' => $order->eBalance,
+                'Paymongo' => $order->Paymongo,
+                'PhysicalCash' => $order->PhysicalCash,
+                'total_amount' => $order->total_amount,
+            ];
+        });
+
         $dailyIncome = Order::where('store_id', $storeId)
         ->where('created_at', '>=', Carbon::today()->subDays(6)) // Last 7 days
         ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
@@ -720,9 +743,9 @@ public function generalCancel(Request $request)
         }
         $salesToday['percentage_change'] = $percentageChange;
         
-        // Predict today's sales based on the past two weeks
+        // Predict today's sales based on the past four weeks
         $pastTwoWeeksSales = Order::where('store_id', $storeId)
-            ->whereBetween('pending_time', [Carbon::now()->subDays(14), Carbon::yesterday()])
+            ->whereBetween('pending_time', [Carbon::now()->subDays(30), Carbon::yesterday()])
             ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
             ->select(
                 DB::raw('DATE(pending_time) as date'),
@@ -815,8 +838,8 @@ public function generalCancel(Request $request)
         }
         $salesTodayAdmin['percentage_change'] = $percentageChangeAdmin;
         
-        // Predict today's sales for admin based on the past two weeks
-        $pastTwoWeeksSalesAdmin = Order::whereBetween('pending_time', [Carbon::now()->subDays(14), Carbon::yesterday()])
+        // Predict today's sales for admin based on the past four weeks
+        $pastTwoWeeksSalesAdmin = Order::whereBetween('pending_time', [Carbon::now()->subDays(30), Carbon::yesterday()])
             ->whereIn('status', ['Accepted', 'Ready', 'Claimed'])
             ->select(
                 DB::raw('DATE(pending_time) as date'),
@@ -1053,6 +1076,7 @@ public function generalCancel(Request $request)
             'dailyOrders' => $dailyOrders,
 
             'dailyIncome' => $dailyIncome,
+            'monthlyIncome' => $monthlyIncome,
             'storeTopSellingItems' => $storeTopSellingItems,
             'salesToday' => $salesToday,
             'salesThisMonth' => $salesThisMonth,

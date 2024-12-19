@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const DailyOrdersChartIndividualMonth = ({ data }) => {
   const [showTable, setShowTable] = useState(false); // State to toggle table visibility
@@ -38,6 +40,28 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
     }
   }, [data]); // Re-run useEffect when `data` changes
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Daily Orders Data for ${data[0].store}`, 14, 10);
+
+    const tableColumns = ['Date', 'Total Amount', 'Physical Cash', 'eBalance', 'Paymongo'];
+    const tableRows = data.map(item => [
+      item.date,
+      item.total_amount.toFixed(2),
+      item.PhysicalCash.toFixed(2),
+      item.eBalance.toFixed(2),
+      item.Paymongo.toFixed(2),
+    ]);
+
+    doc.autoTable({
+      head: [tableColumns],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save('DailyOrders_Last30Days.pdf');
+  };
+
   return (
     <div style={{ width: '100%', margin: 'auto' }}>
       {/* Chart Section */}
@@ -46,7 +70,7 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
         style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: '16px' }}
       />
 
-      {/* Toggle Button */}
+      {/* Buttons */}
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <button
           onClick={() => setShowTable(!showTable)} // Toggle table visibility
@@ -58,13 +82,28 @@ const DailyOrdersChartIndividualMonth = ({ data }) => {
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            marginRight: '8px',
           }}
         >
           {showTable ? 'Hide Table' : 'Show Table'}
         </button>
+        <button
+          onClick={exportToPDF} // Export to PDF
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            backgroundColor: '#0275d8',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Export to PDF
+        </button>
       </div>
 
-      {/* Table Section with Animation */}
+      {/* Table Section */}
       <div className={`table-container ${showTable ? 'show' : 'hide'}`}>
         <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>Daily Orders Data (Last 30 Days)</h3>
         <table

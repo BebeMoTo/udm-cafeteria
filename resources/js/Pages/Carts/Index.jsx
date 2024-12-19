@@ -53,6 +53,11 @@ const Index = ({auth, carts: initialCarts }) => {
         setItemToBuy(cart);
         setModalOpenBuy(true);
       };
+
+    const handleOpenModalBuyAll = (storeCarts) => {
+        setItemToBuy(storeCarts);
+        setModalOpenBuy(true);
+      };
     
       
 
@@ -117,56 +122,60 @@ const Index = ({auth, carts: initialCarts }) => {
     const handleConfirmBuy = async () => {
         if (itemToBuy) {
             try {
-                // Place the order
-                await axios.post('/orders', {
-                    user_id: auth.user.id,
-                    item_id: itemToBuy.item.id,
-                    store_id: itemToBuy.store.id,
-                    quantity: itemToBuy.quantity,
-                    total_price: itemToBuy.total_price
-                });
+                const itemsToProcess = Array.isArray(itemToBuy) ? itemToBuy : [itemToBuy]; // Ensure it’s always an array
     
-                // Remove item from cart
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                await fetch(`/carts/${itemToBuy.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                });
+                for (const cart of itemsToProcess) {
+                    // Place the order for each item
+                    await axios.post('/orders', {
+                        user_id: auth.user.id,
+                        item_id: cart.item.id,
+                        store_id: cart.store.id,
+                        quantity: cart.quantity,
+                        total_price: cart.total_price,
+                    });
     
-                // Update local state
-                setCarts(carts.filter(cart => cart.id !== itemToBuy.id));
+                    // Remove item from cart
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    await fetch(`/carts/${cart.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                    });
+    
+                    // Update local state
+                    setCarts((prevCarts) => prevCarts.filter((c) => c.id !== cart.id));
+                }
     
                 // Close the modal and show success message
                 handleCloseModalBuy();
                 setOpen(true);
-                setSnackbarMessage("Order placed successfully!");
-
-                //refresh page
-                const timer = setTimeout(() => {
-                    window.location.reload();  // Refresh the page
-                  }, 2000);  // 3000 milliseconds = 3 seconds
+                setSnackbarMessage("Orders placed successfully!");
     
+                // Refresh page after a delay
+                setTimeout(() => {
+                    window.location.reload(); // Refresh the page
+                }, 2000);
             } catch (error) {
-                console.error('Error placing order:', error);
+                console.error('Error placing orders:', error);
     
                 // Handle specific errors
                 if (error.response && error.response.status === 400) {
                     const errorMessage = error.response.data.message;
                     setSnackbarMessage(errorMessage);
                 } else if (error.response && error.response.status === 500) {
-                    const errorMessage = error.response.data.message;
                     setSnackbarMessage('The store is currently closed.');
                 } else {
-                    setSnackbarMessage('Placing order failed. Please try again.');
+                    setSnackbarMessage('Placing orders failed. Please try again.');
                 }
+    
                 setOpen(true);
                 handleCloseModalBuy();
             }
         }
     };
+    
 
 
     const handleConfirmEWallet = async () => {
@@ -248,7 +257,6 @@ const Index = ({auth, carts: initialCarts }) => {
                             {Object.entries(groupedByStore).map(([storeName, storeCarts]) => (
                                 <div key={storeName}>
                                     
-
                                     <Link href={`/stores/${storeCarts[0].store_id}`} style={{ textDecoration: 'none' }}>
                                     <Typography 
                                     variant='h5' fontWeight={400} fontSize={"24px"} sx={{marginBottom: "8px", fontVariant: "small-caps", fontWeight: "bold"}}
@@ -270,8 +278,13 @@ const Index = ({auth, carts: initialCarts }) => {
                                                 <Button variant='contained' size="small" sx={{ backgroundColor: blue[500] }}
                                                 onClick={() => handleOpenModalBuy(cart)}>Buy</Button>
                                             </HorizontalCard>
-
+                                            
                                         ))}
+                                        <div style={{textAlign: "right", marginTop: "8px"}}>
+                                           <Button variant='contained' size="small" sx={{ backgroundColor: blue[500] }}
+                                            onClick={() => handleOpenModalBuyAll(storeCarts)}>Buy All</Button> 
+                                        </div>
+                                            
                                         <br/>
                                 </div>
                             ))}

@@ -17,7 +17,7 @@ export default defineConfig({
             host: '192.168.254.187',  // Replace with your local IP address
             //host: '172.16.34.65',  // Replace with your local IP address
             //host: '192.168.209.177',  // Replace with your local IP address
-            //host: '192.168.9.177',  // Replace with your local IP address
+            //host: '192.168.104.177',  // Replace with your local IP address
         },
     },
 });

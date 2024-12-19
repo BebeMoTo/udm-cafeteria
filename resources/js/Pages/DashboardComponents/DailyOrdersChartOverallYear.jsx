@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const DailyOrdersChartOverallYear = ({ data }) => {
   const [showTable, setShowTable] = useState(false); // State to control table visibility
@@ -21,7 +23,7 @@ const DailyOrdersChartOverallYear = ({ data }) => {
       ];
 
       const options = {
-        title: 'Overall Sales (This Month)',
+        title: 'Overall Sales (This Year)',
         hAxis: { title: 'Date' },
         vAxis: { title: 'Total Amount' },
         curveType: 'none',
@@ -36,6 +38,22 @@ const DailyOrdersChartOverallYear = ({ data }) => {
     }
   }, [data]);
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Overall Sales Data (This Year)', 14, 10);
+    doc.autoTable({
+      head: [['Date', 'eBalance', 'Paymongo', 'Physical Cash', 'Total Amount']],
+      body: data.map(item => [
+        item.date,
+        item.eBalance.toFixed(2),
+        item.Paymongo.toFixed(2),
+        item.PhysicalCash.toFixed(2),
+        item.total_amount.toFixed(2),
+      ]),
+    });
+    doc.save('overall_sales_data_year.pdf');
+  };
+
   return (
     <div style={{ width: '100%', margin: 'auto' }}>
       {/* Chart Section */}
@@ -44,7 +62,7 @@ const DailyOrdersChartOverallYear = ({ data }) => {
         style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: '16px' }}
       />
 
-      {/* Toggle Button */}
+      {/* Buttons Section */}
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <button
           onClick={() => setShowTable(!showTable)} // Toggle table visibility
@@ -56,9 +74,24 @@ const DailyOrdersChartOverallYear = ({ data }) => {
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            marginRight: '8px',
           }}
         >
           {showTable ? 'Hide Table' : 'Show Table'}
+        </button>
+        <button
+          onClick={exportToPDF} // Export to PDF
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Export to PDF
         </button>
       </div>
 

@@ -3,7 +3,8 @@ import './MyCardSimple1.css'
 import CustomizedProgressBars from './CustomizedProgressBar'
 import { useState } from 'react'
 
-const MyCardSimple1 = ({pesoSign, number, title, plain, percentVal}) => {
+const MyCardSimple1 = ({pesoSign, number, title, plain, percentVal, tooltip}) => {
+    console.log(tooltip)
     const miniPercentView = () => {
         if (percentVal < 0) {
             return(
@@ -27,7 +28,8 @@ const MyCardSimple1 = ({pesoSign, number, title, plain, percentVal}) => {
     }
   return (
 
-    <div className="card">
+    <div className="card" title={tooltip ? `Sales Yesterday: ${tooltip}` : ``}>
+        
         <div className="title">
             <span>
                 <svg width="20" fill="currentColor" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">

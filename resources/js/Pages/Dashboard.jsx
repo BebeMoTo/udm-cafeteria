@@ -5,6 +5,7 @@ import { useState } from 'react';
 import TopSellingRecommendations from './DashboardComponents/TopSellingRecommendations';
 import TopSellingFavorite from './DashboardComponents/TopSellingFavorite';
 import DailyOrdersChart from './DashboardComponents/DailyOrdersChart';
+import MonthlyIncomeChart from './DashboardComponents/MonthlyOrdersChart';
 import BarGraph from './DashboardComponents/BarGraph';
 import BarGraphOverallBestSelling from './DashboardComponents/BarGraphOverallBestSelling';
 import MyCardSimple from './DashboardComponents/MyCardSimple';
@@ -16,11 +17,12 @@ import DailyOrdersChartOverallMonth from './DashboardComponents/DailyOrdersChart
 import DailyOrdersChartOverallYear from './DashboardComponents/DailyOrdersChartOverallYear';
 
 
-export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesTodayAdmin, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, allOrders,
+export default function Dashboard({ auth, topSellingItems, userTopItems, recommendedItems, dailyOrders, dailyIncome, storeTopSellingItems, salesToday, salesTodayAdmin, salesThisMonth, pendingOrders, acceptedOrders, overallDailyIncome, overallMonthlyIncome, overallYearlyIncome, overallTopSellingItems, storeWiseDailyIncome, storeWiseMonthlyIncome, allOrders, monthlyIncome,
 }) {
     const [topSelling, setTopSelling] = useState(topSellingItems);
     const [userTop, setUserTop] = useState(userTopItems);
     const [recommended, setRecommended] = useState(recommendedItems);
+
 
     function showStoreBalance() {
         if (auth.user.type === "Seller") {
@@ -162,6 +164,35 @@ export default function Dashboard({ auth, topSellingItems, userTopItems, recomme
         );
     }
 
+    const [sellerSelected, setSellerSelected] = useState('week');
+    const isSeller = () => {
+        if (sellerSelected === "week") {
+            return(
+                <div>
+                    <label htmlFor="range-select">Select Range:</label> &nbsp;
+                    <select value={selectedRange} onChange={(e) => setSellerSelected(e.target.value)}>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select> <br /><br />
+                    
+                    <DailyOrdersChart data={dailyIncome}/>
+                </div>
+            );
+        }
+        else if (sellerSelected === "month") {
+            return(
+                <div>
+                    <label htmlFor="range-select">Select Range:</label> &nbsp;
+                    <select value={selectedRange} onChange={(e) => setSellerSelected(e.target.value)}>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                    </select> <br /><br />
+                    
+                    <MonthlyIncomeChart data={monthlyIncome}/>
+                </div>
+            );
+        }
+    }
 
 const { props } = usePage(); // Access Inertia props
 console.log('Props received:', props); // Debugging
@@ -181,7 +212,7 @@ console.log('Props received:', props); // Debugging
                 {/*Admin Graphs and Charts*/}
 
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
-                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesTodayAdmin.percentage_change} percentVal1={salesTodayAdmin.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesTodayAdmin.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesTodayAdmin.percentage_change} percentVal1={salesTodayAdmin.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesTodayAdmin.sales_today.toFixed(2)} title={"Sales Today"} tooltip={salesTodayAdmin.sales_yesterday}/> : ""}
                     {auth.user.type === "Admin" ? <MyCardSimple1 percentVal={salesTodayAdmin.percentage_to_prediction} percentVal1={salesTodayAdmin.percentage_to_prediction} plain={false} pesoSign={'\u20B1'} number={salesTodayAdmin.predicted_sales.toFixed(2)} title={"Sales Prediction"}/> : ""}
                 </div>
                 {auth.user.type === "Admin" ? isAdminOverallSales() : ""}
@@ -196,7 +227,7 @@ console.log('Props received:', props); // Debugging
 
                 {/*Seller Infos Card*/}
                 <div style={{display: "flex", flexShrink: 0, gap: "16px", overflowX: "auto", paddingBottom: "16px"}}>                
-                    {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_change} percentVal1={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"}/> : ""}
+                    {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_change} percentVal1={salesToday.percentage_change} plain={false} pesoSign={'\u20B1'} number={salesToday.sales_today.toFixed(2)} title={"Sales Today"} tooltip={salesToday.sales_yesterday}/> : ""}
                     {auth.user.type === "Seller" ? <MyCardSimple1 percentVal={salesToday.percentage_to_prediction} percentVal1={salesToday.percentage_to_prediction} plain={false} pesoSign={'\u20B1'} number={salesToday.predicted_sales.toFixed(2)} title={"Sales Prediction"}/> : ""}
                     {auth.user.type === "Seller" ? <MyCardSimple1 plain={true} pesoSign={'\u20B1'} number={salesThisMonth.toFixed(2)} title={"Sales This Month"}/> : ""}
                 </div>
@@ -208,7 +239,9 @@ console.log('Props received:', props); // Debugging
 
                     {auth.user.type == "User" ? recommended && <TopSellingRecommendations topSelling={recommended} chapterTitle={"Foods that you might like"}/> : ""}
 
-                    {auth.user.type === "Seller" ? <DailyOrdersChart data={dailyIncome}/> : ""}
+
+
+                    {auth.user.type === "Seller" ? isSeller() : ""}
 
                     {auth.user.type === "Seller" ? <BarGraph bestSellingItems={storeTopSellingItems} />: ""}
 

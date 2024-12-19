@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const DailyOrdersChartOverallMonth = ({ data }) => {
   const [showTable, setShowTable] = useState(false); // State to control table visibility
@@ -9,16 +11,16 @@ const DailyOrdersChartOverallMonth = ({ data }) => {
     window.google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
-        const chartData = [
-            ['Date', 'Total Amount', 'Physical Cash', 'eBalance', 'Paymongo'], // Chart headings
-            ...data.map(item => [
-              item.date,
-              item.total_amount, // Total amount line
-              item.PhysicalCash, // Physical Cash line
-              item.eBalance, // eBalance line
-              item.Paymongo, // Paymongo line
-            ]), // Data points
-          ];
+      const chartData = [
+        ['Date', 'Total Amount', 'Physical Cash', 'eBalance', 'Paymongo'], // Chart headings
+        ...data.map(item => [
+          item.date,
+          item.total_amount, // Total amount line
+          item.PhysicalCash, // Physical Cash line
+          item.eBalance, // eBalance line
+          item.Paymongo, // Paymongo line
+        ]), // Data points
+      ];
 
       const options = {
         title: 'Overall Sales (This Month)',
@@ -36,6 +38,28 @@ const DailyOrdersChartOverallMonth = ({ data }) => {
     }
   }, [data]);
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Overall Sales Data (This Month)', 14, 10);
+
+    const tableColumn = ['Date', 'eBalance', 'Paymongo', 'Physical Cash', 'Total Amount'];
+    const tableRows = data.map(item => [
+      item.date,
+      item.eBalance.toFixed(2),
+      item.Paymongo.toFixed(2),
+      item.PhysicalCash.toFixed(2),
+      item.total_amount.toFixed(2),
+    ]);
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save('Overall_Sales_Data_This_Month.pdf');
+  };
+
   return (
     <div style={{ width: '100%', margin: 'auto' }}>
       {/* Chart Section */}
@@ -44,7 +68,7 @@ const DailyOrdersChartOverallMonth = ({ data }) => {
         style={{ width: '100%', height: '400px', margin: 'auto', marginBottom: '16px' }}
       />
 
-      {/* Toggle Button */}
+      {/* Action Buttons */}
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <button
           onClick={() => setShowTable(!showTable)} // Toggle table visibility
@@ -56,9 +80,24 @@ const DailyOrdersChartOverallMonth = ({ data }) => {
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            marginRight: '10px',
           }}
         >
           {showTable ? 'Hide Table' : 'Show Table'}
+        </button>
+        <button
+          onClick={handleExportPDF}
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            backgroundColor: '#337ab7',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Export to PDF
         </button>
       </div>
 
